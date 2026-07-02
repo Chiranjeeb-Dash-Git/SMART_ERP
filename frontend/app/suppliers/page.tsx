@@ -129,7 +129,7 @@ export default function SuppliersPage() {
                           <div className={`text-lg font-bold ${
                             supplier.opening_balance_type === 'debit' ? 'text-blue-300' : 'text-emerald-300'
                           }`}>
-                            ₹{supplier.opening_balance?.toFixed(2) || 0} {supplier.opening_balance_type?.toUpperCase()}
+                            ₹{Number(supplier.opening_balance || 0).toFixed(2)} {supplier.opening_balance_type?.toUpperCase()}
                           </div>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">

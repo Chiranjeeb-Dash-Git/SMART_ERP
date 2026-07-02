@@ -358,7 +358,7 @@ export default function LedgersPage() {
                         <div className={`text-lg font-bold ${
                           ledger.opening_balance_type === 'debit' ? 'text-blue-300' : 'text-emerald-300'
                         }`}>
-                          ₹{ledger.opening_balance.toFixed(2)} {ledger.opening_balance_type.toUpperCase()}
+                          ₹{Number(ledger.opening_balance || 0).toFixed(2)} {ledger.opening_balance_type.toUpperCase()}
                         </div>
                       </td>
                       <td className="px-8 py-6 whitespace-nowrap">

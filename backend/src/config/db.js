@@ -1,6 +1,11 @@
 
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 require('dotenv').config();
+
+// Parse NUMERIC types to numbers
+types.setTypeParser(1700, 'text', (val) => {
+  return parseFloat(val);
+});
 
 // Use DATABASE_URL from Neon if available, otherwise fall back to individual credentials
 const pool = new Pool({

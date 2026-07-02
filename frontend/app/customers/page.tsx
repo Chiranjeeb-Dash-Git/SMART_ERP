@@ -129,7 +129,7 @@ export default function CustomersPage() {
                           <div className={`text-lg font-bold ${
                             customer.opening_balance_type === 'debit' ? 'text-blue-300' : 'text-emerald-300'
                           }`}>
-                            ₹{customer.opening_balance?.toFixed(2) || 0} {customer.opening_balance_type?.toUpperCase()}
+                            ₹{Number(customer.opening_balance || 0).toFixed(2)} {customer.opening_balance_type?.toUpperCase()}
                           </div>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">

@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/:companyId', protect, async (req, res) => {
   try {
-    const result = await pool.query(`
+    let query = `
       SELECT si.*, u.symbol as unit_symbol, sg.name as stock_group_name,
              COALESCE(ss.quantity, si.opening_stock) as current_stock
       FROM stock_items si
@@ -15,8 +15,19 @@ router.get('/:companyId', protect, async (req, res) => {
       LEFT JOIN stock_groups sg ON si.stock_group_id = sg.id
       LEFT JOIN stock_summary ss ON si.id = ss.item_id AND si.company_id = ss.company_id
       WHERE si.company_id = $1
-      ORDER BY si.name
-    `, [req.params.companyId]);
+    `;
+    const params = [req.params.companyId];
+    let paramIndex = 2;
+    
+    if (req.query.search) {
+      query += ` AND (si.name ILIKE $${paramIndex} OR si.sku ILIKE $${paramIndex} OR si.hsn_code ILIKE $${paramIndex})`;
+      params.push(`%${req.query.search}%`);
+      paramIndex++;
+    }
+    
+    query += ` ORDER BY si.name`;
+    
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error) {
     console.error(error);
@@ -111,6 +122,32 @@ router.delete('/:id', protect, async (req, res) => {
   try {
     await pool.query('DELETE FROM stock_items WHERE id = $1', [req.params.id]);
     res.json({ message: 'Stock item deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Stock summary
+router.get('/stock-summary/:companyId', protect, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        si.*,
+        u.symbol as unit_symbol,
+        sg.name as stock_group_name,
+        COALESCE(ss.quantity, si.opening_stock) as current_stock,
+        COALESCE(ss.available_stock, si.opening_stock) as available_stock,
+        COALESCE(ss.reserved_stock, 0) as reserved_stock,
+        COALESCE(ss.damaged_stock, 0) as damaged_stock
+      FROM stock_items si
+      LEFT JOIN units u ON si.unit_id = u.id
+      LEFT JOIN stock_groups sg ON si.stock_group_id = sg.id
+      LEFT JOIN stock_summary ss ON si.id = ss.item_id AND si.company_id = ss.company_id
+      WHERE si.company_id = $1
+      ORDER BY si.name
+    `, [req.params.companyId]);
+    res.json(result.rows);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

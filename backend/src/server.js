@@ -25,6 +25,7 @@ const transactionRoutes = require('./routes/transactions');
 const inventoryTransactionRoutes = require('./routes/inventoryTransactions');
 const gstRecordRoutes = require('./routes/gstRecords');
 const auditLogRoutes = require('./routes/auditLogs');
+const reportsRoutes = require('./routes/reports');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companyRoutes);
@@ -38,6 +39,13 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/inventory-transactions', inventoryTransactionRoutes);
 app.use('/api/gst-records', gstRecordRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
+app.use('/api/reports', reportsRoutes);
+
+// Alias routes for compatibility
+app.use('/api/items', stockItemRoutes);
+app.use('/api/customers', ledgerRoutes);
+app.use('/api/suppliers', ledgerRoutes);
+app.use('/api/stock-summary', stockItemRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
