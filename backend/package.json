@@ -4,10 +4,10 @@
   "description": "SmartERP Backend API",
   "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/server-mock.js",
-    "start": "node src/server-mock.js",
-    "dev:db": "nodemon src/server.js",
-    "start:db": "node src/server.js"
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "dev:mock": "nodemon src/server-mock.js",
+    "start:mock": "node src/server-mock.js"
   },
   "keywords": [],
   "author": "",
