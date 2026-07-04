@@ -1,9 +1,9 @@
-
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from './providers';
+import { Sidebar } from '@/components/Sidebar';
 
 export function PlaceholderPage({ title, description }: { title: string; description: string }) {
   const { selectedCompany } = useApp();
@@ -18,30 +18,33 @@ export function PlaceholderPage({ title, description }: { title: string; descrip
   if (!selectedCompany) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              <p className="text-gray-600">{selectedCompany.name}</p>
-            </div>
+    <div className="erp-page-container flex flex-row">
+      <Sidebar />
+      <div className="flex-1 flex flex-col p-6 overflow-hidden bg-[var(--erp-bg)]">
+        
+        <div className="erp-header">
+          <div>
+            <h2 className="erp-title">{title}</h2>
+            <div className="text-xs text-[var(--erp-text-muted)] mt-1">{selectedCompany.name}</div>
+          </div>
+          <div className="flex gap-4 items-center">
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="erp-btn erp-btn-secondary"
             >
-              Back
+              Back to Dashboard
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="bg-white rounded-xl shadow p-8 text-center">
-          <div className="text-6xl mb-4">🚧</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{title} Under Construction</h2>
-          <p className="text-gray-600">{description}</p>
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="erp-card text-center py-16 px-24">
+            <div className="text-4xl mb-4">🚧</div>
+            <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--erp-teal)' }}>{title} Under Construction</h2>
+            <p style={{ color: 'var(--erp-text-muted)' }}>{description}</p>
+          </div>
         </div>
+
       </div>
     </div>
   );

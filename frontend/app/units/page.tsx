@@ -1,12 +1,11 @@
-
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../providers';
 import api, { Unit } from '@/lib/api';
 import { Sidebar } from '@/components/Sidebar';
-import { Particles } from '@/components/Particles';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 
 export default function UnitsPage() {
   const { user, selectedCompany } = useApp();
@@ -40,7 +39,7 @@ export default function UnitsPage() {
 
   const loadData = async () => {
     try {
-      const data = await api.getUnits(selectedCompany.id);
+      const data = await api.getUnits(selectedCompany!.id);
       setUnits(data);
     } catch (err) {
       console.error(err);
@@ -94,29 +93,15 @@ export default function UnitsPage() {
   if (!isClient || !user || !selectedCompany) return null;
 
   return (
-    <div className="flex h-screen relative">
-      <Particles />
+    <div className="erp-page-container flex flex-row">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="header px-10 py-7 flex items-center justify-between">
+      <main className="flex-1 flex flex-col p-6 overflow-hidden bg-[var(--erp-bg)]">
+        <div className="erp-header">
           <div>
-            <div className="flex items-center gap-4 mb-2">
-              <h2 className="text-3xl font-black text-white">Units of Measurement</h2>
-              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
-                {selectedCompany.name}
-              </span>
-            </div>
-            <p className="text-slate-400 text-lg">
-              {new Date().toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
+            <h2 className="erp-title">Units of Measurement</h2>
+            <div className="text-xs text-[var(--erp-text-muted)] mt-1">{selectedCompany.name}</div>
           </div>
-
           <div className="flex items-center gap-4">
             <button
               onClick={() => {
@@ -124,185 +109,120 @@ export default function UnitsPage() {
                 resetForm();
                 setShowModal(true);
               }}
-              className="btn-primary flex items-center gap-2 px-7 py-4 rounded-xl font-bold text-lg"
+              className="erp-btn erp-btn-primary"
             >
-              <span className="text-2xl">+</span> Create Unit
+              + Create Unit
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-white/20"
+              className="erp-btn erp-btn-secondary"
             >
-              ← Back
+              Back to Dashboard
             </button>
           </div>
-        </header>
-
-        <div className="flex-1 overflow-auto p-10">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <div className="text-7xl mb-5 animate-spin text-purple-400">⏳</div>
-              <p className="text-xl font-semibold">Loading units...</p>
-            </div>
-          ) : (
-            <div className="glass-card table-glass rounded-3xl border border-white/10 overflow-hidden fade-in">
-              {units.length === 0 ? (
-                <div className="p-24 text-center">
-                  <div className="text-slate-400 text-7xl mb-6">📏</div>
-                  <h3 className="text-2xl font-bold text-slate-200 mb-3">No Units Yet</h3>
-                  <p className="text-slate-400 text-lg mb-6">Create your first unit to get started</p>
-                  <button
-                    onClick={() => {
-                      setEditingUnit(null);
-                      resetForm();
-                      setShowModal(true);
-                    }}
-                    className="btn-primary px-8 py-4 rounded-xl font-bold text-lg"
-                  >
-                    Create Unit
-                  </button>
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
-                    <tr>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Symbol
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Description
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {units.map((unit) => (
-                      <tr key={unit.id} className="table-row hover:bg-purple-500/10 transition-all">
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <div className="text-lg font-semibold text-white">{unit.name}</div>
-                        </td>
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300 font-mono">{unit.symbol}</span>
-                        </td>
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">{unit.description || '-'}</span>
-                        </td>
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEdit(unit)}
-                              className="text-amber-300 hover:text-amber-200 font-semibold flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-amber-500/20 transition-all"
-                            >
-                              ✏️ Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(unit.id)}
-                              className="text-red-300 hover:text-red-200 font-semibold flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-red-500/20 transition-all"
-                            >
-                              🗑️ Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
         </div>
 
-        {showModal && (
-          <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
-            <div className="glass-card rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-white/10 scale-in">
-              <div className="p-8 border-b border-white/10">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-black flex items-center gap-3 text-white">
-                    <span className="text-blue-400 text-3xl">📏</span>
-                    {editingUnit ? 'Edit Unit' : 'Create New Unit'}
-                  </h2>
-                  <button
-                    onClick={() => {
-                      setShowModal(false);
-                      setEditingUnit(null);
-                      resetForm();
-                    }}
-                    className="text-slate-400 hover:text-white text-4xl transition-all"
-                  >
-                    ×
+        <div className="erp-table-container">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th className="w-12 text-center">#</th>
+                <th className="text-left">Name</th>
+                <th className="text-left">Symbol</th>
+                <th className="text-left">Description</th>
+                <th className="w-24 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8">Loading...</td>
+                </tr>
+              ) : units.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8">No units found.</td>
+                </tr>
+              ) : (
+                units.map((unit, i) => (
+                  <tr key={unit.id} className="group">
+                    <td className="text-center text-[var(--erp-text-muted)]">{i + 1}</td>
+                    <td className="font-medium text-[var(--erp-teal)]">{unit.name}</td>
+                    <td className="font-medium">{unit.symbol}</td>
+                    <td className="text-[var(--erp-text-muted)]">{unit.description || '-'}</td>
+                    <td className="text-center">
+                      <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleEdit(unit)} className="text-[var(--erp-teal)] hover:underline text-xs">Edit</button>
+                        <button onClick={() => handleDelete(unit.id)} className="text-[var(--erp-danger)] hover:underline text-xs">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </main>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="erp-modal-overlay">
+          <div className="erp-modal-content max-w-md">
+            <div className="erp-modal-header">
+              <h2 className="text-lg">
+                {editingUnit ? 'Edit Unit' : 'Create New Unit'}
+              </h2>
+              <button onClick={() => { setShowModal(false); setEditingUnit(null); resetForm(); }} className="hover:opacity-80">
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="erp-label">Name *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="erp-input"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="erp-label">Symbol *</label>
+                  <input
+                    type="text"
+                    value={formData.symbol}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                    className="erp-input"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="erp-label">Description</label>
+                  <textarea
+                    value={formData.description || ''}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="erp-input"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-[var(--erp-border)] mt-6">
+                  <button type="button" onClick={() => { setShowModal(false); setEditingUnit(null); resetForm(); }} className="erp-btn erp-btn-secondary">
+                    Cancel
+                  </button>
+                  <button type="submit" className="erp-btn erp-btn-primary">
+                    {editingUnit ? 'Update' : 'Save'}
                   </button>
                 </div>
-              </div>
-
-              <div className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">
-                      Name <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
-                      placeholder="Enter unit name..."
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">
-                      Symbol <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.symbol}
-                      onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg font-mono"
-                      placeholder="Enter unit symbol..."
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">
-                      Description
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
-                      rows={2}
-                      placeholder="Enter description..."
-                    />
-                  </div>
-                  <div className="flex gap-4 pt-4">
-                    <button
-                      type="submit"
-                      className="btn-primary flex-1 px-8 py-4 rounded-xl font-bold text-lg"
-                    >
-                      {editingUnit ? '✓ Update Unit' : '✓ Create Unit'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowModal(false);
-                        setEditingUnit(null);
-                        resetForm();
-                      }}
-                      className="btn-secondary px-8 py-4 rounded-xl font-bold text-lg border border-white/20"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
+              </form>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   );
 }

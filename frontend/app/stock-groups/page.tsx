@@ -1,12 +1,10 @@
-
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../providers';
 import api, { StockGroup } from '@/lib/api';
 import { Sidebar } from '@/components/Sidebar';
-import { Particles } from '@/components/Particles';
 
 export default function StockGroupsPage() {
   const { user, selectedCompany } = useApp();
@@ -33,7 +31,7 @@ export default function StockGroupsPage() {
 
   const loadData = async () => {
     try {
-      const data = await api.getStockGroups(selectedCompany.id);
+      const data = await api.getStockGroups(selectedCompany!.id);
       setGroups(data);
     } catch (err) {
       console.error(err);
@@ -45,81 +43,54 @@ export default function StockGroupsPage() {
   if (!isClient || !user || !selectedCompany) return null;
 
   return (
-    <div className="flex h-screen relative">
-      <Particles />
+    <div className="erp-page-container flex flex-row">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="header px-10 py-7 flex items-center justify-between">
+      <main className="flex-1 flex flex-col p-6 overflow-hidden bg-[var(--erp-bg)]">
+        <div className="erp-header">
           <div>
-            <div className="flex items-center gap-4 mb-2">
-              <h2 className="text-3xl font-black text-white">Stock Groups</h2>
-              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
-                {selectedCompany.name}
-              </span>
-            </div>
-            <p className="text-slate-400 text-lg">
-              {new Date().toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
+            <h2 className="erp-title">Stock Groups</h2>
+            <div className="text-xs text-[var(--erp-text-muted)] mt-1">{selectedCompany.name}</div>
           </div>
-
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-white/20"
+              className="erp-btn erp-btn-secondary"
             >
-              ← Back
+              Back to Dashboard
             </button>
           </div>
-        </header>
+        </div>
 
-        <div className="flex-1 overflow-auto p-10">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <div className="text-7xl mb-5 animate-spin text-purple-400">⏳</div>
-              <p className="text-xl font-semibold">Loading stock groups...</p>
-            </div>
-          ) : (
-            <div className="glass-card table-glass rounded-3xl border border-white/10 overflow-hidden fade-in">
-              {groups.length === 0 ? (
-                <div className="p-24 text-center">
-                  <div className="text-slate-400 text-7xl mb-6">📂</div>
-                  <h3 className="text-2xl font-bold text-slate-200 mb-3">No Stock Groups Yet</h3>
-                  <p className="text-slate-400 text-lg">Default groups will be created automatically</p>
-                </div>
+        <div className="erp-table-container">
+          <table className="erp-table">
+            <thead>
+              <tr>
+                <th className="w-12 text-center">#</th>
+                <th className="text-left">Name</th>
+                <th className="text-left">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-8">Loading...</td>
+                </tr>
+              ) : groups.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-8">No stock groups found.</td>
+                </tr>
               ) : (
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
-                    <tr>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Description
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {groups.map((group) => (
-                      <tr key={group.id} className="table-row hover:bg-purple-500/10 transition-all">
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <div className="text-lg font-semibold text-white">{group.name}</div>
-                        </td>
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">{group.description || '-'}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                groups.map((group, i) => (
+                  <tr key={group.id}>
+                    <td className="text-center text-[var(--erp-text-muted)]">{i + 1}</td>
+                    <td className="font-medium text-[var(--erp-teal)]">{group.name}</td>
+                    <td className="text-[var(--erp-text-muted)]">{group.description || '-'}</td>
+                  </tr>
+                ))
               )}
-            </div>
-          )}
+            </tbody>
+          </table>
         </div>
       </main>
     </div>

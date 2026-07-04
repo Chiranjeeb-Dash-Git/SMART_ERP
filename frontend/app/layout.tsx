@@ -1,23 +1,17 @@
 
 import './globals.css'
 import type { Metadata } from 'next'
-import { Rajdhani, JetBrains_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { AppProvider } from './providers'
 
-const rajdhani = Rajdhani({ 
-  weight: ['300', '400', '500', '600', '700'],
+const inter = Inter({ 
   subsets: ['latin'],
-  variable: '--font-rajdhani'
-})
-
-const jetbrainsMono = JetBrains_Mono({ 
-  subsets: ['latin'],
-  variable: '--font-mono'
+  variable: '--font-inter'
 })
 
 export const metadata: Metadata = {
-  title: 'SmartERP - Cybernetic Nexus',
-  description: 'Advanced Robotic Business System',
+  title: 'SmartERP - Billing & Accounting',
+  description: 'Professional Tally-Inspired Web Application',
 }
 
 export default function RootLayout({
@@ -27,7 +21,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${rajdhani.variable} ${jetbrainsMono.variable} font-sans antialiased text-white bg-[#050505]`}>
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+      </head>
+      <body className={`${inter.variable} font-sans antialiased`} style={{ backgroundColor: 'var(--erp-bg)', color: 'var(--erp-text-primary)' }}>
         <AppProvider>
           {children}
         </AppProvider>

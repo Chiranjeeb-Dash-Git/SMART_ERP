@@ -33,7 +33,7 @@ export default function StockSummaryPage() {
 
   const loadData = async () => {
     try {
-      const data = await api.getStockSummary(selectedCompany.id);
+      const data = await api.getStockSummary(selectedCompany!.id);
       setItems(data);
     } catch (err) {
       console.error(err);
@@ -51,126 +51,80 @@ export default function StockSummaryPage() {
   }, 0);
 
   return (
-    <div className="flex h-screen relative">
-      <Particles />
+    <div className="erp-page-container flex flex-row">
       <Sidebar />
-
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="header px-10 py-7 flex items-center justify-between">
+      <div className="flex-1 flex flex-col p-6 overflow-hidden bg-[var(--erp-bg)]">
+        <div className="erp-header">
           <div>
-            <div className="flex items-center gap-4 mb-2">
-              <h2 className="text-3xl font-black text-white">Stock Summary</h2>
-              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
-                {selectedCompany.name}
-              </span>
-            </div>
-            <p className="text-slate-400 text-lg">
-              {new Date().toLocaleDateString('en-IN', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
+            <h2 className="erp-title">Stock Summary</h2>
+            <div className="text-xs text-[var(--erp-text-muted)] mt-1">{selectedCompany.name}</div>
           </div>
-
-          <div className="flex items-center gap-4">
-            <div className="glass-card rounded-xl border border-white/10 px-8 py-4">
-              <div className="text-sm text-slate-400">Total Stock Value</div>
-              <div className="text-3xl font-black text-emerald-300">₹{totalStockValue.toFixed(2)}</div>
+          <div className="flex gap-4 items-center">
+            <div className="erp-card px-4 py-2 border-l-4 border-l-[var(--erp-teal)] flex flex-col items-end shadow-sm">
+              <div className="text-xs text-[var(--erp-text-muted)] font-medium">Total Stock Value</div>
+              <div className="text-lg font-bold text-[var(--erp-teal)]">₹{totalStockValue.toFixed(2)}</div>
             </div>
             <button
               onClick={() => router.push('/dashboard')}
-              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-white/20"
+              className="erp-btn erp-btn-secondary"
             >
               ← Back
             </button>
           </div>
-        </header>
-
-        <div className="flex-1 overflow-auto p-10">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <div className="text-7xl mb-5 animate-spin text-purple-400">⏳</div>
-              <p className="text-xl font-semibold">Loading stock summary...</p>
-            </div>
-          ) : (
-            <div className="glass-card table-glass rounded-3xl border border-white/10 overflow-hidden fade-in">
-              {items.length === 0 ? (
-                <div className="p-24 text-center">
-                  <div className="text-slate-400 text-7xl mb-6">📦</div>
-                  <h3 className="text-2xl font-bold text-slate-200 mb-3">No Stock Items Yet</h3>
-                  <p className="text-slate-400 text-lg">Add stock items to see the summary here.</p>
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
-                    <tr>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Item
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        SKU
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Current Stock
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Available
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Rate
-                      </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
-                        Value
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {items.map((item) => {
-                      const currentStock = item.current_stock || item.opening_stock || 0;
-                      const availableStock = item.available_stock || currentStock;
-                      const rate = (item.purchase_price || item.opening_rate) || 0;
-                      return (
-                        <tr key={item.id} className="table-row hover:bg-purple-500/10 transition-all">
-                          <td className="px-8 py-6 whitespace-nowrap">
-                            <div className="text-lg font-semibold text-white">{item.name}</div>
-                          </td>
-                          <td className="px-8 py-6 whitespace-nowrap">
-                            <span className="text-slate-300">{item.sku || '-'}</span>
-                          </td>
-                          <td className="px-8 py-6 whitespace-nowrap">
-                            <div className="text-lg font-semibold text-white">
-                              {currentStock} {item.unit_symbol || ''}
-                            </div>
-                          </td>
-                          <td className="px-8 py-6 whitespace-nowrap">
-                            <div
-                              className={`text-lg font-semibold ${
-                                availableStock > 0 ? 'text-emerald-300' : 'text-red-300'
-                              }`}
-                            >
-                              {availableStock} {item.unit_symbol || ''}
-                            </div>
-                          </td>
-                          <td className="px-8 py-6 whitespace-nowrap">
-                            <span className="text-slate-300">₹{(rate || 0).toFixed(2)}</span>
-                          </td>
-                          <td className="px-8 py-6 whitespace-nowrap">
-                            <div className="text-lg font-semibold text-white">
-                              ₹{((currentStock || 0) * (rate || 0)).toFixed(2)}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
         </div>
-      </main>
+
+        <div className="erp-table-container">
+          <table className="erp-table min-w-full">
+            <thead>
+              <tr>
+                <th className="text-left px-4 py-2">Item</th>
+                <th className="text-left px-4 py-2">SKU</th>
+                <th className="text-left px-4 py-2">Current Stock</th>
+                <th className="text-left px-4 py-2">Available</th>
+                <th className="text-right px-4 py-2">Rate</th>
+                <th className="text-right px-4 py-2">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={6} className="text-center py-8">Loading...</td></tr>
+              ) : items.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-[var(--erp-text-muted)]">No stock items found.</td></tr>
+              ) : (
+                items.map((item) => {
+                  const currentStock = item.current_stock || item.opening_stock || 0;
+                  const availableStock = item.available_stock || currentStock;
+                  const rate = (item.purchase_price || item.opening_rate) || 0;
+                  return (
+                    <tr key={item.id} className="border-b border-[var(--erp-border)] hover:bg-black/5">
+                      <td className="px-4 py-3 font-medium text-[var(--erp-teal)]">
+                        {item.name}
+                      </td>
+                      <td className="px-4 py-3 text-[var(--erp-text-muted)]">
+                        {item.sku || '-'}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-gray-800">
+                        {currentStock} <span className="text-xs font-normal text-gray-500">{item.unit_symbol || ''}</span>
+                      </td>
+                      <td className="px-4 py-3 font-bold">
+                        <span className={availableStock > 0 ? 'text-emerald-700' : 'text-red-700'}>
+                          {availableStock} <span className="text-xs font-normal text-gray-500">{item.unit_symbol || ''}</span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right text-[var(--erp-text-muted)]">
+                        ₹{(rate || 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-[var(--erp-teal)]">
+                        ₹{((currentStock || 0) * (rate || 0)).toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

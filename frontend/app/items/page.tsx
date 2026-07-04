@@ -51,9 +51,9 @@ export default function ItemsPage() {
   const loadData = async () => {
     try {
       const [itemsData, groupsData, unitsData] = await Promise.all([
-        api.getItems(selectedCompany.id),
-        api.getStockGroups(selectedCompany.id),
-        api.getUnits(selectedCompany.id),
+        api.getItems(selectedCompany!.id),
+        api.getStockGroups(selectedCompany!.id),
+        api.getUnits(selectedCompany!.id),
       ]);
       setItems(itemsData);
       setGroups(groupsData);
@@ -126,12 +126,12 @@ export default function ItemsPage() {
         <header className="header px-10 py-7 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-4 mb-2">
-              <h2 className="text-3xl font-black text-white">Items / Stock</h2>
-              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
+              <h2 className="text-3xl font-black text-black">Items / Stock</h2>
+              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-700 text-xs font-bold rounded-full border border-emerald-500/30">
                 {selectedCompany.name}
               </span>
             </div>
-            <p className="text-slate-400 text-lg">
+            <p className="text-[var(--erp-text-muted)] text-lg">
               {new Date().toLocaleDateString('en-IN', {
                 weekday: 'long',
                 year: 'numeric',
@@ -154,7 +154,7 @@ export default function ItemsPage() {
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-white/20"
+              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-gray-200"
             >
               ← Back
             </button>
@@ -163,17 +163,17 @@ export default function ItemsPage() {
 
         <div className="flex-1 overflow-auto p-10">
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <div className="text-7xl mb-5 animate-spin text-purple-400">⏳</div>
+            <div className="flex flex-col items-center justify-center h-full text-[var(--erp-text-muted)]">
+              <div className="text-7xl mb-5 animate-spin text-[var(--erp-teal)]">⏳</div>
               <p className="text-xl font-semibold">Loading items...</p>
             </div>
           ) : (
-            <div className="glass-card table-glass rounded-3xl border border-white/10 overflow-hidden fade-in">
+            <div className="erp-table-container rounded-3xl border border-gray-200 overflow-hidden fade-in">
               {items.length === 0 ? (
                 <div className="p-24 text-center">
-                  <div className="text-slate-400 text-7xl mb-6">📦</div>
-                  <h3 className="text-2xl font-bold text-slate-200 mb-3">No Items Yet</h3>
-                  <p className="text-slate-400 text-lg mb-6">Create your first item to get started</p>
+                  <div className="text-[var(--erp-text-muted)] text-7xl mb-6">📦</div>
+                  <h3 className="text-2xl font-bold text-black font-semibold mb-3">No Items Yet</h3>
+                  <p className="text-[var(--erp-text-muted)] text-lg mb-6">Create your first item to get started</p>
                   <button
                     onClick={() => {
                       setEditingItem(null);
@@ -186,61 +186,61 @@ export default function ItemsPage() {
                   </button>
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="">
                     <tr>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Name
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Stock Group
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Current Stock
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         GST Rate
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-gray-200">
                     {items.map((item) => (
-                      <tr key={item.id} className="table-row hover:bg-purple-500/10 transition-all">
+                      <tr key={item.id} className="table-row hover:bg-gray-100 transition-all">
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <div className="text-lg font-semibold text-white">{item.name}</div>
+                          <div className="text-lg font-semibold text-black">{item.name}</div>
                           {item.hsn_code && (
-                            <div className="text-xs text-slate-400">HSN: {item.hsn_code}</div>
+                            <div className="text-xs text-[var(--erp-text-muted)]">HSN: {item.hsn_code}</div>
                           )}
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">{item.stock_group_name || '-'}</span>
+                          <span className="text-[var(--erp-text-muted)]">{item.stock_group_name || '-'}</span>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
                           <div
                             className={`text-lg font-bold ${
-                              (item.current_stock || item.opening_stock) > 0 ? 'text-emerald-300' : 'text-red-300'
+                              (item.current_stock || item.opening_stock) > 0 ? 'text-emerald-700' : 'text-red-700'
                             }`}
                           >
                             {item.current_stock || item.opening_stock || 0} {item.unit_symbol || ''}
                           </div>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">{(item.gst_rate || 0)}%</span>
+                          <span className="text-[var(--erp-text-muted)]">{(item.gst_rate || 0)}%</span>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEdit(item)}
-                              className="text-amber-300 hover:text-amber-200 font-semibold flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-amber-500/20 transition-all"
+                              className="text-amber-700 hover:text-amber-200 font-semibold flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-amber-100 transition-all"
                             >
                               ✏️ Edit
                             </button>
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="text-red-300 hover:text-red-200 font-semibold flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-red-500/20 transition-all"
+                              className="text-red-700 hover:text-red-200 font-semibold flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-red-100 transition-all"
                             >
                               🗑️ Delete
                             </button>
@@ -257,11 +257,11 @@ export default function ItemsPage() {
 
         {showModal && (
           <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
-            <div className="glass-card rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10 scale-in">
-              <div className="p-8 border-b border-white/10">
+            <div className="erp-card bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 scale-in">
+              <div className="p-8 border-b border-gray-200">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-black flex items-center gap-3 text-white">
-                    <span className="text-emerald-400 text-3xl">📦</span>
+                  <h2 className="text-3xl font-black flex items-center gap-3 text-black">
+                    <span className="text-emerald-700 text-3xl">📦</span>
                     {editingItem ? 'Edit Item' : 'Add Item'}
                   </h2>
                   <button
@@ -270,7 +270,7 @@ export default function ItemsPage() {
                       setEditingItem(null);
                       resetForm();
                     }}
-                    className="text-slate-400 hover:text-white text-4xl transition-all"
+                    className="text-[var(--erp-text-muted)] hover:text-black text-4xl transition-all"
                   >
                     ×
                   </button>
@@ -281,40 +281,40 @@ export default function ItemsPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-5">
                     <div className="col-span-2">
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         Item Name <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                         placeholder="Enter item name..."
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         SKU
                       </label>
                       <input
                         type="text"
                         value={formData.sku || ''}
                         onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                         placeholder="ABC-123"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         HSN Code
                       </label>
                       <input
                         type="text"
                         value={formData.hsn_code || ''}
                         onChange={(e) => setFormData({ ...formData, hsn_code: e.target.value })}
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                         placeholder="HSN"
                       />
                     </div>
@@ -322,13 +322,13 @@ export default function ItemsPage() {
 
                   <div className="grid grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         Stock Group
                       </label>
                       <select
                         value={formData.stock_group_id}
                         onChange={(e) => setFormData({ ...formData, stock_group_id: e.target.value })}
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black text-lg"
                       >
                         <option value="">Select group...</option>
                         {groups.map((group) => (
@@ -339,13 +339,13 @@ export default function ItemsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         Unit
                       </label>
                       <select
                         value={formData.unit_id}
                         onChange={(e) => setFormData({ ...formData, unit_id: e.target.value })}
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black text-lg"
                       >
                         <option value="">Select unit...</option>
                         {units.map((unit) => (
@@ -359,7 +359,7 @@ export default function ItemsPage() {
 
                   <div className="grid grid-cols-3 gap-5">
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         Purchase Price
                       </label>
                       <input
@@ -369,12 +369,12 @@ export default function ItemsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, purchase_price: parseFloat(e.target.value) || 0 })
                         }
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                         placeholder="0.00"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         Selling Price
                       </label>
                       <input
@@ -384,12 +384,12 @@ export default function ItemsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, selling_price: parseFloat(e.target.value) || 0 })
                         }
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                         placeholder="0.00"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-200 mb-3">
+                      <label className="block text-sm font-bold text-black font-semibold mb-3">
                         GST Rate (%)
                       </label>
                       <input
@@ -398,7 +398,7 @@ export default function ItemsPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, gst_rate: parseFloat(e.target.value) || 0 })
                         }
-                        className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                        className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                         placeholder="18"
                       />
                     </div>
@@ -407,7 +407,7 @@ export default function ItemsPage() {
                   {!editingItem && (
                     <div className="grid grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm font-bold text-slate-200 mb-3">
+                        <label className="block text-sm font-bold text-black font-semibold mb-3">
                           Opening Stock
                         </label>
                         <input
@@ -423,12 +423,12 @@ export default function ItemsPage() {
                               opening_value: qty * rate,
                             });
                           }}
-                          className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                          className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-slate-200 mb-3">
+                        <label className="block text-sm font-bold text-black font-semibold mb-3">
                           Opening Rate
                         </label>
                         <input
@@ -444,7 +444,7 @@ export default function ItemsPage() {
                               opening_value: qty * rate,
                             });
                           }}
-                          className="glass-input w-full px-6 py-4 rounded-xl text-white placeholder-slate-400 text-lg"
+                          className="erp-input w-full px-6 py-4 rounded-xl text-black placeholder-slate-400 text-lg"
                           placeholder="0.00"
                         />
                       </div>
@@ -465,7 +465,7 @@ export default function ItemsPage() {
                         setEditingItem(null);
                         resetForm();
                       }}
-                      className="btn-secondary px-8 py-4 rounded-xl font-bold text-lg border border-white/20"
+                      className="btn-secondary px-8 py-4 rounded-xl font-bold text-lg border border-gray-200"
                     >
                       Cancel
                     </button>

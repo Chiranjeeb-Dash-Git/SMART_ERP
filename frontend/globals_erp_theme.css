@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --erp-sidebar: #1A3C3C;
+    --erp-sidebar-hover: #254D4D;
+    --erp-sidebar-active: #2D5F5F;
+    --erp-bg: #F2EDE3;
+    --erp-surface: #FFFFFF;
+    --erp-border: #D4C9B6;
+    --erp-text-primary: #1A1A1A;
+    --erp-text-muted: #6B6355;
+    --erp-teal: #1A3C3C;
+    --erp-danger: #8B1A1A;
+    --erp-accent-red: #C41E3A;
+  }
+
+  body {
+    background-color: var(--erp-bg);
+    color: var(--erp-text-primary);
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  /* Layout utilities */
+  .erp-page-container {
+    @apply flex-1 p-6 h-screen overflow-hidden flex flex-col;
+  }
+  
+  .erp-header {
+    @apply flex items-center justify-between mb-6 pb-4 border-b;
+    border-color: var(--erp-border);
+  }
+  
+  .erp-title {
+    @apply text-2xl font-bold tracking-tight;
+    color: var(--erp-teal);
+  }
+
+  /* Cards and Panels */
+  .erp-card {
+    background-color: var(--erp-surface);
+    border: 1px solid var(--erp-border);
+    @apply rounded shadow-sm p-4;
+  }
+
+  /* Tables */
+  .erp-table-container {
+    @apply overflow-auto border rounded bg-white shadow-sm flex-1;
+    border-color: var(--erp-border);
+  }
+  
+  .erp-table {
+    @apply w-full text-sm text-left border-collapse;
+  }
+  
+  .erp-table th {
+    background-color: var(--erp-teal);
+    @apply text-white font-medium py-2 px-3 sticky top-0 z-10 border-r border-white/20 whitespace-nowrap;
+  }
+  
+  .erp-table td {
+    @apply py-1.5 px-3 border-b border-r whitespace-nowrap;
+    border-color: var(--erp-border);
+  }
+  
+  .erp-table tr.table-row:nth-child(even) {
+    background-color: #F9F7F3;
+  }
+  
+  .erp-table tr.table-row:hover {
+    background-color: #EAE5DB;
+  }
+  
+  /* Buttons */
+  .erp-btn {
+    @apply inline-flex items-center px-4 py-2 text-sm font-medium rounded border focus:outline-none transition-colors duration-150;
+  }
+  
+  .erp-btn-primary {
+    background-color: var(--erp-teal);
+    @apply text-white border-transparent hover:bg-[#254D4D];
+  }
+  
+  .erp-btn-secondary {
+    background-color: var(--erp-surface);
+    @apply text-gray-700 border-gray-300 hover:bg-gray-50;
+  }
+  
+  .erp-btn-danger {
+    background-color: var(--erp-danger);
+    @apply text-white border-transparent hover:bg-[#6b1414];
+  }
+
+  /* Inputs */
+  .erp-input {
+    @apply w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 bg-white text-black;
+    border-color: var(--erp-border);
+  }
+  .erp-input:focus {
+    border-color: var(--erp-teal);
+    --tw-ring-color: var(--erp-teal);
+  }
+  
+  .erp-label {
+    @apply block text-sm font-medium mb-1;
+    color: var(--erp-text-muted);
+  }
+  
+  /* Bottom Action Bar */
+  .erp-bottom-bar {
+    background-color: var(--erp-sidebar);
+    @apply fixed bottom-0 left-64 right-0 p-3 flex justify-end gap-3 z-40 border-t shadow-lg;
+    border-color: var(--erp-sidebar-hover);
+  }
+  
+  /* Modals */
+  .erp-modal-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4;
+  }
+  
+  .erp-modal-content {
+    background-color: var(--erp-surface);
+    @apply rounded shadow-xl border w-full overflow-hidden;
+    border-color: var(--erp-border);
+  }
+  
+  .erp-modal-header {
+    background-color: var(--erp-teal);
+    @apply text-white p-4 font-medium flex justify-between items-center;
+  }
+  
+  .erp-badge {
+    @apply px-2 py-0.5 text-xs font-medium rounded bg-gray-100 text-gray-800;
+  }
+  .erp-badge-danger {
+    background-color: var(--erp-accent-red);
+    @apply text-white;
+  }
+}
+
+/* Base scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--erp-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--erp-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--erp-text-muted);
+}

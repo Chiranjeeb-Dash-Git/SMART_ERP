@@ -277,6 +277,15 @@ app.get('/api/stock-items/:companyId/:id', protect, (req, res) => {
 app.post('/api/stock-items', protect, (req, res) => {
   try {
     const item = db.stockItems.create(req.body);
+    // Initialize stock summary
+    db.stockSummary.create({
+      company_id: item.company_id,
+      item_id: item.id,
+      quantity: item.opening_stock || 0,
+      available_stock: item.opening_stock || 0,
+      reserved_stock: 0,
+      damaged_stock: 0
+    });
     res.status(201).json(item);
   } catch (error) {
     console.error(error);
@@ -326,6 +335,15 @@ app.get('/api/items/:companyId', protect, (req, res) => {
 app.post('/api/items', protect, (req, res) => {
   try {
     const item = db.stockItems.create(req.body);
+    // Initialize stock summary
+    db.stockSummary.create({
+      company_id: item.company_id,
+      item_id: item.id,
+      quantity: item.opening_stock || 0,
+      available_stock: item.opening_stock || 0,
+      reserved_stock: 0,
+      damaged_stock: 0
+    });
     res.status(201).json(item);
   } catch (error) {
     console.error(error);
@@ -439,6 +457,81 @@ app.get('/api/vouchers/:companyId/export-excel', protect, (req, res) => {
   res.send(csvContent);
 });
 
+app.get('/api/vouchers/:companyId/:id/pdf', protect, (req, res) => {
+  try {
+    const voucher = db.vouchers.findOne({ id: req.params.id, company_id: req.params.companyId });
+    if (!voucher) {
+      return res.status(404).json({ message: 'Voucher not found' });
+    }
+    
+    const company = db.companies.findOne({ id: req.params.companyId });
+    const ledger = db.ledgers.findOne({ id: voucher.party_ledger_id });
+    const items = db.voucherItems.find({ voucher_id: voucher.id });
+    const stockItemsList = db.stockItems.find({ company_id: req.params.companyId });
+
+    const doc = new PDFDocument({ margin: 50 });
+    
+    // Set response headers to trigger download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${voucher.voucher_type}-${voucher.voucher_number}.pdf`);
+    
+    // Pipe PDF to response
+    doc.pipe(res);
+    
+    // Header
+    doc.fontSize(20).text(company?.name || 'Company Name', { align: 'center' });
+    doc.fontSize(10).text(company?.address || 'Address', { align: 'center' });
+    doc.moveDown();
+    
+    doc.fontSize(16).text(`${voucher.voucher_type.toUpperCase()} INVOICE`, { align: 'center' });
+    doc.moveDown();
+    
+    // Voucher Details
+    doc.fontSize(10);
+    doc.text(`Voucher Number: ${voucher.voucher_number}`);
+    doc.text(`Date: ${voucher.date}`);
+    doc.text(`Party: ${ledger?.name || 'Unknown'}`);
+    doc.moveDown();
+    
+    // Table Header
+    let y = doc.y;
+    doc.rect(50, y, 500, 20).fill('#eeeeee');
+    doc.fillColor('#000000');
+    doc.text('Item Name', 55, y + 5);
+    doc.text('Qty', 250, y + 5);
+    doc.text('Rate', 350, y + 5);
+    doc.text('Amount', 450, y + 5);
+    
+    y += 20;
+    
+    // Table Rows
+    items.forEach(item => {
+      const stockItem = stockItemsList.find(s => s.id === item.item_id);
+      doc.text(stockItem?.name || 'Item', 55, y + 5);
+      doc.text(String(item.quantity), 250, y + 5);
+      doc.text(String(item.rate), 350, y + 5);
+      doc.text(String(item.quantity * item.rate), 450, y + 5);
+      y += 20;
+    });
+    
+    doc.moveDown();
+    y += 10;
+    
+    // Totals
+    doc.rect(350, y, 200, 60).stroke();
+    doc.text(`Taxable Amount: ${voucher.taxable_amount || 0}`, 360, y + 10);
+    doc.text(`Total GST: ${voucher.total_gst || 0}`, 360, y + 25);
+    doc.fontSize(12).font('Helvetica-Bold').text(`Total: ${voucher.total_amount || 0}`, 360, y + 45);
+    
+    doc.end();
+  } catch (error) {
+    console.error(error);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Error generating PDF' });
+    }
+  }
+});
+
 app.post('/api/vouchers', protect, (req, res) => {
   try {
     const { voucher_items, ...voucherData } = req.body;
@@ -478,7 +571,8 @@ app.post('/api/vouchers', protect, (req, res) => {
         });
         
         // Update stock summary and create inventory transaction
-        if (item.item_id) {
+        const isInventoryVoucher = ['Sales', 'Purchase', 'Credit Note', 'Debit Note'].includes(voucher.voucher_type);
+        if (item.item_id && isInventoryVoucher) {
           const summaries = db.stockSummary.find({
             company_id: voucher.company_id,
             item_id: item.item_id
@@ -509,6 +603,13 @@ app.post('/api/vouchers', protect, (req, res) => {
             voucher_id: voucher.id,
             narration: voucherData.narration || ''
           });
+
+          // Auto-update purchase price on Purchase
+          if (voucher.voucher_type === 'Purchase') {
+            db.stockItems.update(item.item_id, {
+              purchase_price: item.rate
+            });
+          }
         }
       });
     }
@@ -542,6 +643,142 @@ app.post('/api/vouchers', protect, (req, res) => {
     }
     
     res.status(201).json(voucher);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/vouchers/:id', protect, (req, res) => {
+  try {
+    const oldVoucher = db.vouchers.findOne({ id: req.params.id });
+    if (!oldVoucher) {
+      return res.status(404).json({ message: 'Voucher not found' });
+    }
+
+    const { voucher_items, ...voucherData } = req.body;
+
+    // 1. Revert old stock impacts
+    const oldIsInventoryVoucher = ['Sales', 'Purchase', 'Credit Note', 'Debit Note'].includes(oldVoucher.voucher_type);
+    const oldItems = db.voucherItems.find({ voucher_id: oldVoucher.id });
+    oldItems.forEach(oldItem => {
+      if (oldItem.item_id && oldIsInventoryVoucher) {
+        const summaries = db.stockSummary.find({
+          company_id: oldVoucher.company_id,
+          item_id: oldItem.item_id
+        });
+        if (summaries.length > 0) {
+          const summary = summaries[0];
+          // Revert: subtract if it was IN, add if it was OUT
+          const revertQty = (oldVoucher.voucher_type === 'Purchase' || oldVoucher.voucher_type === 'Debit Note')
+            ? -oldItem.quantity
+            : oldItem.quantity;
+
+          db.stockSummary.update(summary.id, {
+            quantity: (summary.quantity || 0) + revertQty,
+            available_stock: (summary.available_stock || 0) + revertQty
+          });
+        }
+      }
+    });
+
+    // 2. Delete old inventory transactions and voucher items
+    const oldInvTrans = db.inventoryTransactions.find({ voucher_id: oldVoucher.id });
+    oldInvTrans.forEach(it => db.inventoryTransactions.delete(it.id));
+    oldItems.forEach(vi => db.voucherItems.delete(vi.id));
+
+    // 3. Calculate new totals
+    let totalAmount = 0;
+    let totalTaxable = 0;
+    let totalGst = 0;
+
+    if (voucher_items && voucher_items.length > 0) {
+      voucher_items.forEach(item => {
+        const amount = item.quantity * item.rate;
+        const discount = (amount * (item.discount_percent || 0)) / 100;
+        const taxable = amount - discount;
+        const gst = (taxable * (item.gst_rate || 0)) / 100;
+
+        totalTaxable += taxable;
+        totalGst += gst;
+        totalAmount += taxable + gst;
+      });
+    }
+
+    voucherData.total_amount = totalAmount;
+    voucherData.taxable_amount = totalTaxable;
+    voucherData.total_gst = totalGst;
+
+    // 4. Update the voucher
+    const updatedVoucher = db.vouchers.update(oldVoucher.id, voucherData);
+
+    // 5. Create new voucher items and apply new stock impacts
+    if (voucher_items && voucher_items.length > 0) {
+      voucher_items.forEach(item => {
+        db.voucherItems.create({
+          ...item,
+          voucher_id: updatedVoucher.id
+        });
+
+        const isInventoryVoucher = ['Sales', 'Purchase', 'Credit Note', 'Debit Note'].includes(updatedVoucher.voucher_type);
+        if (item.item_id && isInventoryVoucher) {
+          const summaries = db.stockSummary.find({
+            company_id: updatedVoucher.company_id,
+            item_id: item.item_id
+          });
+
+          if (summaries.length > 0) {
+            const summary = summaries[0];
+            const qtyChange = (updatedVoucher.voucher_type === 'Purchase' || updatedVoucher.voucher_type === 'Debit Note')
+              ? item.quantity
+              : -item.quantity;
+
+            db.stockSummary.update(summary.id, {
+              quantity: (summary.quantity || 0) + qtyChange,
+              available_stock: (summary.available_stock || 0) + qtyChange
+            });
+          }
+
+          db.inventoryTransactions.create({
+            company_id: updatedVoucher.company_id,
+            item_id: item.item_id,
+            transaction_type: (updatedVoucher.voucher_type === 'Purchase' || updatedVoucher.voucher_type === 'Debit Note') ? 'IN' : 'OUT',
+            transaction_date: updatedVoucher.date,
+            quantity: item.quantity,
+            rate: item.rate,
+            amount: item.total_amount,
+            voucher_id: updatedVoucher.id,
+            narration: voucherData.narration || ''
+          });
+
+          if (updatedVoucher.voucher_type === 'Purchase') {
+            db.stockItems.update(item.item_id, {
+              purchase_price: item.rate
+            });
+          }
+        }
+      });
+    }
+
+    // 6. Update invoice if it exists
+    if (updatedVoucher.voucher_type === 'Sales' || updatedVoucher.voucher_type === 'Purchase') {
+      const existingInvoices = db.invoices.find({ voucher_id: updatedVoucher.id });
+      if (existingInvoices.length > 0) {
+        db.invoices.update(existingInvoices[0].id, {
+          date: updatedVoucher.date,
+          due_date: updatedVoucher.due_date || updatedVoucher.date,
+          party_ledger_id: updatedVoucher.party_ledger_id,
+          taxable_amount: updatedVoucher.taxable_amount || 0,
+          cgst_amount: (totalGst || 0) / 2,
+          sgst_amount: (totalGst || 0) / 2,
+          total_gst: updatedVoucher.total_gst || 0,
+          total_amount: updatedVoucher.total_amount || 0,
+          balance_amount: updatedVoucher.total_amount || 0
+        });
+      }
+    }
+
+    res.json(updatedVoucher);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

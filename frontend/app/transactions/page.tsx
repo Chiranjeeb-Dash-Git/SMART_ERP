@@ -35,8 +35,8 @@ export default function TransactionsPage() {
   const loadData = async () => {
     try {
       const [txData, ledgersData] = await Promise.all([
-        api.getTransactions(selectedCompany.id),
-        api.getLedgers(selectedCompany.id),
+        api.getTransactions(selectedCompany!.id),
+        api.getLedgers(selectedCompany!.id),
       ]);
       setTransactions(txData);
       setLedgers(ledgersData);
@@ -58,12 +58,12 @@ export default function TransactionsPage() {
         <header className="header px-10 py-7 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-4 mb-2">
-              <h2 className="text-3xl font-black text-white">Transactions</h2>
-              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
+              <h2 className="text-3xl font-black text-black">Transactions</h2>
+              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-700 text-xs font-bold rounded-full border border-emerald-500/30">
                 {selectedCompany.name}
               </span>
             </div>
-            <p className="text-slate-400 text-lg">
+            <p className="text-[var(--erp-text-muted)] text-lg">
               {new Date().toLocaleDateString('en-IN', {
                 weekday: 'long',
                 year: 'numeric',
@@ -76,7 +76,7 @@ export default function TransactionsPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-white/20"
+              className="btn-secondary flex items-center gap-2 px-7 py-3 rounded-xl font-bold text-lg border border-gray-200"
             >
               ← Back
             </button>
@@ -85,55 +85,55 @@ export default function TransactionsPage() {
 
         <div className="flex-1 overflow-auto p-10">
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <div className="text-7xl mb-5 animate-spin text-purple-400">⏳</div>
+            <div className="flex flex-col items-center justify-center h-full text-[var(--erp-text-muted)]">
+              <div className="text-7xl mb-5 animate-spin text-[var(--erp-teal)]">⏳</div>
               <p className="text-xl font-semibold">Loading transactions...</p>
             </div>
           ) : (
-            <div className="glass-card table-glass rounded-3xl border border-white/10 overflow-hidden fade-in">
+            <div className="erp-table-container rounded-3xl border border-gray-200 overflow-hidden fade-in">
               {transactions.length === 0 ? (
                 <div className="p-24 text-center">
-                  <div className="text-slate-400 text-7xl mb-6">💳</div>
-                  <h3 className="text-2xl font-bold text-slate-200 mb-3">No Transactions Yet</h3>
-                  <p className="text-slate-400 text-lg">Transactions will appear here as you create vouchers.</p>
+                  <div className="text-[var(--erp-text-muted)] text-7xl mb-6">💳</div>
+                  <h3 className="text-2xl font-bold text-black font-semibold mb-3">No Transactions Yet</h3>
+                  <p className="text-[var(--erp-text-muted)] text-lg">Transactions will appear here as you create vouchers.</p>
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-white/10">
-                  <thead className="bg-white/5">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="">
                     <tr>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Date
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Ledger
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Debit
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Credit
                       </th>
-                      <th className="px-8 py-6 text-left text-sm font-bold text-slate-200 uppercase tracking-wider">
+                      <th className="px-8 py-6 text-left text-sm font-bold text-black font-semibold uppercase tracking-wider">
                         Reference
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-gray-200">
                     {transactions.map((tx) => (
-                      <tr key={tx.id} className="table-row hover:bg-purple-500/10 transition-all">
+                      <tr key={tx.id} className="table-row hover:bg-gray-100 transition-all">
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">
+                          <span className="text-[var(--erp-text-muted)]">
                             {new Date(tx.transaction_date).toLocaleDateString('en-IN')}
                           </span>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">{tx.transaction_type}</span>
+                          <span className="text-[var(--erp-text-muted)]">{tx.transaction_type}</span>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <div className="text-lg font-semibold text-white">{tx.ledger_name || '-'}</div>
+                          <div className="text-lg font-semibold text-black">{tx.ledger_name || '-'}</div>
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
                           {tx.debit_credit === 'debit' ? (
@@ -141,20 +141,20 @@ export default function TransactionsPage() {
                               ₹{tx.amount.toFixed(2)}
                             </div>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-[var(--erp-text-muted)]">-</span>
                           )}
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
                           {tx.debit_credit === 'credit' ? (
-                            <div className="text-lg font-semibold text-emerald-300">
+                            <div className="text-lg font-semibold text-emerald-700">
                               ₹{tx.amount.toFixed(2)}
                             </div>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-[var(--erp-text-muted)]">-</span>
                           )}
                         </td>
                         <td className="px-8 py-6 whitespace-nowrap">
-                          <span className="text-slate-300">{tx.reference_number || '-'}</span>
+                          <span className="text-[var(--erp-text-muted)]">{tx.reference_number || '-'}</span>
                         </td>
                       </tr>
                     ))}

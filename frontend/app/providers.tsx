@@ -3,6 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api, { AuthResponse, Company } from '@/lib/api';
+import { KeyboardShortcuts } from '@/components/KeyboardShortcuts';
 
 interface AppContextType {
   user: AuthResponse | null;
@@ -17,6 +18,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthResponse | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -24,14 +26,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const savedCompany = localStorage.getItem('selectedCompany');
     
     if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error('Failed to parse saved user', e);
+      }
     }
     if (savedCompany) {
-      setSelectedCompany(JSON.parse(savedCompany));
+      try {
+        setSelectedCompany(JSON.parse(savedCompany));
+      } catch (e) {
+        console.error('Failed to parse saved company', e);
+      }
     }
+    setIsInitialized(true);
   }, []);
 
   useEffect(() => {
+    if (!isInitialized) return;
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', user.token);
@@ -39,15 +51,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
     }
-  }, [user]);
+  }, [user, isInitialized]);
 
   useEffect(() => {
+    if (!isInitialized) return;
     if (selectedCompany) {
       localStorage.setItem('selectedCompany', JSON.stringify(selectedCompany));
     } else {
       localStorage.removeItem('selectedCompany');
     }
-  }, [selectedCompany]);
+  }, [selectedCompany, isInitialized]);
 
   const logout = () => {
     setUser(null);
@@ -55,8 +68,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.clear();
   };
 
+  if (!isInitialized) {
+    return null; // Prevents premature rendering and redirection of children
+  }
+
   return (
     <AppContext.Provider value={{ user, setUser, selectedCompany, setSelectedCompany, logout }}>
+      <KeyboardShortcuts />
       {children}
     </AppContext.Provider>
   );

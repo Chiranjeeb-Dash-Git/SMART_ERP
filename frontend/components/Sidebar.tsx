@@ -1,23 +1,47 @@
-
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useApp } from '../app/providers';
+import { 
+  Home, FileText, BookOpen, Users, Factory, Package, 
+  FolderTree, Ruler, Receipt, ClipboardList, RefreshCw, 
+  Building2, TrendingUp, Settings, Database 
+} from 'lucide-react';
 
-const navItems = [
-  { name: 'Dashboard', icon: '🏠', shortcut: 'D', path: '/dashboard' },
-  { name: 'Vouchers', icon: '📝', shortcut: 'V', path: '/vouchers' },
-  { name: 'Ledgers', icon: '📊', shortcut: 'L', path: '/ledgers' },
-  { name: 'Customers', icon: '👥', shortcut: 'C', path: '/customers' },
-  { name: 'Suppliers', icon: '🏭', shortcut: 'S', path: '/suppliers' },
-  { name: 'Inventory', icon: '📦', shortcut: 'I', path: '/stock-items' },
-  { name: 'Stock Groups', icon: '📂', shortcut: 'G', path: '/stock-groups' },
-  { name: 'Units', icon: '📏', shortcut: 'U', path: '/units' },
-  { name: 'Invoices', icon: '🧾', shortcut: 'F', path: '/invoices' },
-  { name: 'Stock Summary', icon: '📋', shortcut: 'K', path: '/stock-summary' },
-  { name: 'Inventory Transactions', icon: '🔄', shortcut: 'T', path: '/inventory-transactions' },
-  { name: 'GST', icon: '🏛️', shortcut: 'G', path: '/gst-records' },
-  { name: 'Reports', icon: '📈', shortcut: 'R', path: '/reports' },
+const navGroups = [
+  {
+    label: null,
+    items: [
+      { name: 'Gateway of ERP', icon: Home, path: '/dashboard' },
+    ]
+  },
+  {
+    label: 'Masters',
+    items: [
+      { name: 'Ledgers', icon: BookOpen, path: '/ledgers' },
+      { name: 'Customers', icon: Users, path: '/customers' },
+      { name: 'Suppliers', icon: Factory, path: '/suppliers' },
+      { name: 'Inventory', icon: Package, path: '/stock-items' },
+      { name: 'Stock Groups', icon: FolderTree, path: '/stock-groups' },
+      { name: 'Units', icon: Ruler, path: '/units' },
+    ]
+  },
+  {
+    label: 'Transactions',
+    items: [
+      { name: 'Vouchers', icon: FileText, path: '/vouchers' },
+      { name: 'Invoices', icon: Receipt, path: '/invoices' },
+      { name: 'Inventory Tx', icon: RefreshCw, path: '/inventory-transactions' },
+    ]
+  },
+  {
+    label: 'Reports',
+    items: [
+      { name: 'Stock Summary', icon: ClipboardList, path: '/stock-summary' },
+      { name: 'GST Records', icon: Building2, path: '/gst-records' },
+      { name: 'Reports', icon: TrendingUp, path: '/reports' },
+    ]
+  }
 ];
 
 export function Sidebar() {
@@ -26,60 +50,63 @@ export function Sidebar() {
   const { user } = useApp();
 
   return (
-    <aside className="sidebar slide-in-left flex flex-col">
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white text-2xl font-extrabold shadow-2xl pulse-glow border border-white/30">
-            SE
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-white">SmartERP</h1>
-            <p className="text-xs text-slate-400">Complete Suite</p>
-          </div>
-        </div>
+    <aside className="w-64 h-screen flex flex-col flex-shrink-0 border-r border-black/10" style={{ backgroundColor: 'var(--erp-sidebar)', color: 'white' }}>
+      <div className="p-6 border-b border-white/10 flex items-center justify-center">
+        <h1 className="text-2xl font-bold tracking-tight text-white">SmartERP</h1>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item, index) => (
-          <button
-            key={item.name}
-            onClick={() => router.push(item.path)}
-            className={`sidebar-item w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all ${
-              pathname === item.path ? 'active' : ''
-            }`}
-            style={{ animationDelay: `${index * 0.05}s` }}
-          >
-            <span className="text-2xl">{item.icon}</span>
-            <span className="flex-1 text-left font-semibold text-lg text-slate-200">
-              {item.name}
-            </span>
-            <span className={`text-xs px-3 py-1.5 rounded-lg font-bold border ${
-              pathname === item.path ? 'bg-purple-500/30 text-purple-200 border-purple-500/30' : 'bg-white/10 text-slate-300 border-white/10'
-            }`}>
-              {item.shortcut}
-            </span>
-          </button>
-        ))}
+      <nav className="flex-1 overflow-y-auto py-4">
+        <ul className="space-y-4">
+          {navGroups.map((group, i) => (
+            <li key={i}>
+              {group.label && (
+                <div className="px-6 py-1 text-xs font-bold uppercase tracking-wider text-white/50">
+                  {group.label}
+                </div>
+              )}
+              <ul className="space-y-0.5 mt-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.path;
+                  return (
+                    <li key={item.name}>
+                      <button
+                        onClick={() => router.push(item.path)}
+                        className={`w-full flex items-center px-6 py-2 transition-colors ${
+                          isActive ? 'bg-white/10 border-l-4 border-white' : 'hover:bg-white/5 border-l-4 border-transparent text-white/80 hover:text-white'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4 mr-3 opacity-80" />
+                        <span className="flex-1 text-left text-sm font-medium">{item.name}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          ))}
+        </ul>
       </nav>
 
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 p-5 rounded-2xl bg-gradient-to-r from-white/5 to-white/0 border border-white/10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl font-black shadow-xl">
-            {user?.name?.charAt(0) || 'U'}
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-lg text-white">{user?.name || 'User'}</p>
-            <p className="text-sm text-slate-400 truncate">{user?.email || ''}</p>
+      {user && (
+        <div className="p-4 border-t border-white/10 flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+              {user.name.charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold truncate">{user.name}</div>
+              <div className="text-xs text-white/60 truncate">{user.email}</div>
+            </div>
           </div>
           <button
             onClick={() => router.push('/companies')}
-            className="p-3 hover:bg-white/10 rounded-xl transition-all text-slate-300 hover:text-white"
-            title="Change Company"
+            className="text-xs px-4 py-2 mt-2 bg-white/10 hover:bg-white/20 rounded transition-colors w-full font-medium"
           >
-            🔄
+            Change Company
           </button>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

@@ -1,38 +1,10 @@
-
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../providers';
 import api, { Company } from '@/lib/api';
-
-// Particles component
-const Particles = () => {
-  const particles = useMemo(() => {
-    return [...Array(20)].map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      duration: `${12 + Math.random() * 15}s`,
-      delay: `${Math.random() * 8}s`,
-    }));
-  }, []);
-
-  return (
-    <div className="particles">
-      {particles.map((particle) => (
-        <div
-          key={particle.id}
-          className="particle"
-          style={{
-            left: particle.left,
-            animationDuration: particle.duration,
-            animationDelay: particle.delay,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+import { Building2, Pencil, Trash2, LogOut, Plus } from 'lucide-react';
 
 export default function CompaniesPage() {
   const { user, setSelectedCompany, logout } = useApp();
@@ -41,6 +13,7 @@ export default function CompaniesPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +26,8 @@ export default function CompaniesPage() {
     financial_year_start: '',
     financial_year_end: '',
     state: '',
-    contact_info: '',
+    phone: '',
+    email: '',
   });
 
   useEffect(() => {
@@ -85,20 +59,25 @@ export default function CompaniesPage() {
       }
       setShowModal(false);
       setEditingCompany(null);
-      setFormData({
-        name: '',
-        address: '',
-        gst_number: '',
-        financial_year_start: '',
-        financial_year_end: '',
-        state: '',
-        contact_info: '',
-      });
+      resetForm();
       loadCompanies();
     } catch (err: any) {
       alert(err.message);
     }
   };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      address: '',
+      gst_number: '',
+      financial_year_start: '',
+      financial_year_end: '',
+      state: '',
+      phone: '',
+      email: '',
+    });
+  }
 
   const handleEdit = (company: Company) => {
     setEditingCompany(company);
@@ -109,7 +88,8 @@ export default function CompaniesPage() {
       financial_year_start: company.financial_year_start || '',
       financial_year_end: company.financial_year_end || '',
       state: company.state || '',
-      contact_info: company.contact_info || '',
+      phone: company.phone || '',
+      email: company.email || '',
     });
     setShowModal(true);
   };
@@ -130,226 +110,215 @@ export default function CompaniesPage() {
     router.push('/dashboard');
   };
 
-  if (!user) return null;
+  if (!user || !isClient) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 flex flex-col relative">
-      {isClient && <Particles />}
-
-      <header className="header px-10 py-8 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white text-3xl font-black shadow-2xl">
-            SE
-          </div>
-          <h1 className="text-4xl font-black gradient-text">Select Company</h1>
+    <div className="erp-page-container bg-[var(--erp-bg)]">
+      
+      <header className="erp-header">
+        <div>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--erp-teal)' }}>Select Company</h1>
+          <p className="text-sm" style={{ color: 'var(--erp-text-muted)' }}>SmartERP Gateway</p>
         </div>
-        <div className="flex items-center space-x-5">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold shadow-2xl">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold" style={{ backgroundColor: 'var(--erp-sidebar-active)' }}>
               {user.name.charAt(0)}
             </div>
-            <span className="text-slate-200 font-bold text-xl">{user.name}</span>
+            <div>
+              <div className="text-sm font-semibold text-black">{user.name}</div>
+              <div className="text-xs text-[var(--erp-text-muted)]">{user.email}</div>
+            </div>
           </div>
           <button
             onClick={logout}
-            className="btn-secondary flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-lg border border-white/20"
+            className="erp-btn erp-btn-secondary flex items-center gap-2"
           >
+            <LogOut className="w-4 h-4" />
             Logout
           </button>
         </div>
       </header>
 
-      <main className="flex-1 p-10 max-w-7xl mx-auto w-full">
-        <div className="flex justify-end mb-10">
+      <main className="flex-1 overflow-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-semibold">Your Companies</h2>
           <button
             onClick={() => {
               setEditingCompany(null);
-              setFormData({
-                name: '',
-                address: '',
-                gst_number: '',
-                financial_year_start: '',
-                financial_year_end: '',
-                state: '',
-                contact_info: '',
-              });
+              resetForm();
               setShowModal(true);
             }}
             disabled={companies.length >= 5}
-            className="btn-primary flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-xl disabled:opacity-50"
+            className="erp-btn erp-btn-primary flex items-center gap-2"
           >
-            <span className="text-2xl">+</span>
+            <Plus className="w-4 h-4" />
             Create Company
           </button>
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24">
-            <div className="text-7xl mb-5 animate-spin text-purple-400">⏳</div>
-            <p className="text-2xl font-semibold text-slate-400">Loading your companies...</p>
-          </div>
+          <div className="flex justify-center py-20 text-[var(--erp-text-muted)]">Loading...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {companies.map((company) => (
               <div
                 key={company.id}
-                className="glass-card rounded-3xl border border-white/10 p-8 hover:scale-105 transition-all duration-300 hover:shadow-2xl fade-in"
+                className="erp-card hover:shadow-md transition-all flex flex-col"
               >
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-3xl font-black shadow-2xl">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded bg-[var(--erp-bg)] flex items-center justify-center text-xl font-bold" style={{ color: 'var(--erp-teal)' }}>
                     {company.name.charAt(0)}
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-white mb-1">{company.name}</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base truncate" style={{ color: 'var(--erp-teal)' }}>{company.name}</h3>
+                    {company.gst_number && (
+                      <p className="text-xs text-[var(--erp-text-muted)] mt-1">
+                        GST: {company.gst_number}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {company.address && (
-                  <p className="text-slate-300 text-lg mb-2">{company.address}</p>
-                )}
-                {company.gst_number && (
-                  <p className="text-slate-400 text-sm mb-6">
-                    GST: {company.gst_number}
-                  </p>
-                )}
+                <div className="text-sm text-[var(--erp-text-muted)] mb-4 flex-1">
+                  {company.address ? <p className="truncate">{company.address}</p> : <p className="italic">No address provided</p>}
+                </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-auto pt-4 border-t border-[var(--erp-border)]">
                   <button
                     onClick={() => selectCompany(company)}
-                    className="flex-1 btn-primary py-4 rounded-2xl font-bold text-xl"
+                    className="flex-1 erp-btn erp-btn-primary justify-center"
                   >
                     Select
                   </button>
                   <button
                     onClick={() => handleEdit(company)}
-                    className="px-5 py-4 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 rounded-2xl transition-all font-bold text-xl border border-amber-500/30"
+                    className="erp-btn erp-btn-secondary"
+                    title="Edit"
                   >
-                    ✏️
+                    <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(company.id)}
-                    className="px-5 py-4 bg-red-500/20 text-red-300 hover:bg-red-500/30 rounded-2xl transition-all font-bold text-xl border border-red-500/30"
+                    className="erp-btn erp-btn-danger"
+                    title="Delete"
                   >
-                    🗑️
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             ))}
 
             {companies.length === 0 && (
-              <div className="col-span-full glass-card rounded-3xl border border-white/10 p-16 text-center fade-in">
-                <div className="text-8xl mb-6">🏢</div>
-                <h3 className="text-3xl font-black text-white mb-4">No companies yet</h3>
-                <p className="text-slate-400 text-xl">Create your first company to get started!</p>
+              <div className="col-span-full erp-card text-center py-16 text-[var(--erp-text-muted)]">
+                <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg font-semibold text-black mb-2">No companies found</h3>
+                <p>Click "Create Company" to get started.</p>
               </div>
             )}
           </div>
         )}
       </main>
 
+      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
-          <div className="glass-card rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10 scale-in">
-            <div className="p-8 border-b border-white/10">
-              <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-black flex items-center gap-3">
-                  <span className="text-purple-400 text-3xl">🏢</span>
-                  {editingCompany ? 'Edit Company' : 'Create New Company'}
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-slate-400 hover:text-white text-4xl transition-all"
-                >
-                  ×
-                </button>
-              </div>
+        <div className="erp-modal-overlay">
+          <div className="erp-modal-content max-w-2xl">
+            <div className="erp-modal-header">
+              <h2 className="text-lg flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                {editingCompany ? 'Edit Company' : 'Create Company'}
+              </h2>
+              <button onClick={() => setShowModal(false)} className="hover:opacity-80">
+                ✕
+              </button>
             </div>
 
-            <div className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-200 mb-3">Company Name</label>
+                  <label className="erp-label">Company Name *</label>
                   <input
                     type="text" value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-xl"
-                    placeholder="Enter company name..." required
+                    className="erp-input"
+                    required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-200 mb-3">Address</label>
+                  <label className="erp-label">Address</label>
                   <textarea
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-lg"
-                    rows={3} placeholder="Enter company address..."
+                    className="erp-input"
+                    rows={3}
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">GST Number</label>
+                    <label className="erp-label">GST Number</label>
                     <input
                       type="text" value={formData.gst_number}
                       onChange={(e) => setFormData({ ...formData, gst_number: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-lg"
-                      placeholder="GSTIN"
+                      className="erp-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">State</label>
+                    <label className="erp-label">State</label>
                     <input
                       type="text" value={formData.state}
                       onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-lg"
-                      placeholder="State"
+                      className="erp-input"
                     />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">Financial Year Start</label>
+                    <label className="erp-label">Financial Year Start</label>
                     <input
                       type="date" value={formData.financial_year_start}
                       onChange={(e) => setFormData({ ...formData, financial_year_start: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-lg"
+                      className="erp-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-200 mb-3">Financial Year End</label>
+                    <label className="erp-label">Financial Year End</label>
                     <input
                       type="date" value={formData.financial_year_end}
                       onChange={(e) => setFormData({ ...formData, financial_year_end: e.target.value })}
-                      className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-lg"
+                      className="erp-input"
                     />
                   </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-bold text-slate-200 mb-3">Contact Info</label>
-                  <input
-                    type="text" value={formData.contact_info}
-                    onChange={(e) => setFormData({ ...formData, contact_info: e.target.value })}
-                    className="glass-input w-full px-6 py-4 rounded-2xl text-white placeholder-slate-400 text-lg"
-                    placeholder="Phone, email, etc."
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="erp-label">Phone Number</label>
+                    <input
+                      type="text" value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="erp-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="erp-label">Email</label>
+                    <input
+                      type="email" value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="erp-input"
+                    />
+                  </div>
                 </div>
                 
-                <div className="flex gap-4 pt-5">
-                  <button
-                    type="submit"
-                    className="btn-primary flex-1 px-8 py-4 rounded-2xl font-bold text-xl"
-                  >
-                    {editingCompany ? '✓ Update Company' : '✓ Create Company'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn-secondary px-8 py-4 rounded-2xl font-bold text-xl border border-white/20"
-                  >
+                <div className="flex justify-end gap-3 pt-4 border-t border-[var(--erp-border)] mt-6">
+                  <button type="button" onClick={() => setShowModal(false)} className="erp-btn erp-btn-secondary">
                     Cancel
+                  </button>
+                  <button type="submit" className="erp-btn erp-btn-primary">
+                    {editingCompany ? 'Update' : 'Save'}
                   </button>
                 </div>
               </form>

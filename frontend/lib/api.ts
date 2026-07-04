@@ -1,6 +1,4 @@
-
-const API_BASE = 'http://localhost:5001/api';
-
+const API_BASE = 'http://localhost:5003/api';
 export interface AuthResponse {
   id: string;
   email: string;
@@ -436,10 +434,10 @@ const api = {
   },
 
   // Aliases for ItemsPage compatibility
-  getItems: (companyId: string, search?: string) => this.getStockItems(companyId, search),
-  createItem: (data: Partial<Item>) => this.createStockItem(data),
-  updateItem: (id: string, data: Partial<Item>) => this.updateStockItem(id, data),
-  deleteItem: (id: string) => this.deleteStockItem(id),
+  getItems(companyId: string, search?: string) { return this.getStockItems(companyId, search); },
+  createItem(data: Partial<StockItem>) { return this.createStockItem(data); },
+  updateItem(id: string, data: Partial<StockItem>) { return this.updateStockItem(id, data); },
+  deleteItem(id: string) { return this.deleteStockItem(id); },
 
   async getStockSummary(companyId: string): Promise<StockItem[]> {
     return this.request(`/stock-summary/${companyId}`);
@@ -457,6 +455,13 @@ const api = {
   async createVoucher(data: Partial<Voucher>): Promise<Voucher> {
     return this.request('/vouchers', {
       method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateVoucher(id: string, data: Partial<Voucher>): Promise<Voucher> {
+    return this.request(`/vouchers/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   },
