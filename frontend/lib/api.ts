@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5003/api';
+const API_BASE = 'http://localhost:5001/api';
 export interface AuthResponse {
   id: string;
   email: string;
@@ -288,6 +288,11 @@ const api = {
     });
 
     if (!response.ok) {
+      if (response.status === 401 && typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      }
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || 'API request failed');
     }
