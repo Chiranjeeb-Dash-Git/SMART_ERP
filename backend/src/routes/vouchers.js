@@ -98,9 +98,21 @@ router.post('/', protect, async (req, res) => {
 
     if (items && items.length > 0) {
       for (const item of items) {
+        let finalItemId = item.item_id;
+        
+        if (!finalItemId && item.item_name) {
+           const newItemResult = await client.query(
+             'INSERT INTO stock_items (company_id, name) VALUES ($1, $2) RETURNING id',
+             [company_id, item.item_name]
+           );
+           finalItemId = newItemResult.rows[0].id;
+        }
+        
+        if (!finalItemId) continue;
+
         await client.query(
           'INSERT INTO voucher_items (voucher_id, item_id, quantity, rate, amount, gst_rate, gst_amount) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-          [voucherId, item.item_id, item.quantity, item.rate, item.amount, item.gst_rate, item.gst_amount]
+          [voucherId, finalItemId, item.quantity, item.rate, item.amount, item.gst_rate || 0, item.gst_amount || 0]
         );
 
         const quantityChange = voucher_type === 'Sales' ? -item.quantity : item.quantity;
@@ -111,7 +123,7 @@ router.post('/', protect, async (req, res) => {
           DO UPDATE SET 
             quantity = stock_summary.quantity + EXCLUDED.quantity,
             updated_at = CURRENT_TIMESTAMP
-        `, [company_id, item.item_id, quantityChange, item.rate, quantityChange * item.rate]);
+        `, [company_id, finalItemId, quantityChange, item.rate, quantityChange * item.rate]);
       }
     }
 
@@ -188,7 +200,7 @@ router.get('/:companyId/:id/pdf', protect, async (req, res) => {
     }
 
     doc.moveDown();
-    doc.fontSize(14).text(`Total Amount: ₹${voucher.total_amount.toFixed(2)}`, { align: 'right' });
+    doc.fontSize(14).text(`Total Amount: ₹${Number(voucher.total_amount || 0).toFixed(2)}`, { align: 'right' });
 
     if (voucher.narration) {
       doc.moveDown();

@@ -360,21 +360,26 @@ export default function VouchersPage() {
                             {(formData.items || []).map((item, index) => (
                               <tr key={index}>
                                 <td className="px-3 py-2">
-                                  <select 
-                                    value={item.item_id}
+                                  <input 
+                                    list="vouchers-items-list"
+                                    value={item.item_name || items.find(si => si.id === item.item_id)?.name || ''}
                                     onChange={(e) => {
+                                      const value = e.target.value;
                                       const newItems = [...(formData.items || [])];
-                                      const selectedItem = items.find(si => si.id === e.target.value);
-                                      const defaultRate = formData.voucher_type === 'Sales' ? selectedItem?.selling_price : selectedItem?.purchase_price;
-                                      newItems[index] = { ...newItems[index], item_id: e.target.value, rate: defaultRate || 0, amount: (newItems[index].quantity || 1) * (defaultRate || 0) } as any;
+                                      const selectedItem = items.find(si => si.name.toLowerCase() === value.toLowerCase());
+                                      
+                                      if (selectedItem) {
+                                        const defaultRate = formData.voucher_type === 'Sales' ? selectedItem.selling_price : selectedItem.purchase_price;
+                                        newItems[index] = { ...newItems[index], item_id: selectedItem.id, item_name: selectedItem.name, rate: defaultRate || 0, amount: (newItems[index].quantity || 1) * (defaultRate || 0) } as any;
+                                      } else {
+                                        newItems[index] = { ...newItems[index], item_id: '', item_name: value } as any;
+                                      }
                                       setFormData({ ...formData, items: newItems });
                                     }}
                                     className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm"
+                                    placeholder="Search or type new..."
                                     required
-                                  >
-                                    <option value="">Select Item...</option>
-                                    {items.map(si => <option key={si.id} value={si.id}>{si.name}</option>)}
-                                  </select>
+                                  />
                                 </td>
                                 <td className="px-3 py-2">
                                   <input 
@@ -449,6 +454,9 @@ export default function VouchersPage() {
                   </button>
                 </div>
               </form>
+              <datalist id="vouchers-items-list">
+                {items.map(si => <option key={si.id} value={si.name} />)}
+              </datalist>
             </div>
           </div>
         )}
