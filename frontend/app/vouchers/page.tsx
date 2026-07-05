@@ -91,10 +91,11 @@ export default function VouchersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const totalAmount = formData.items?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
       if (editingVoucher) {
-        await api.updateVoucher(editingVoucher.id, { ...formData, company_id: selectedCompany!.id });
+        await api.updateVoucher(editingVoucher.id, { ...formData, total_amount: totalAmount, company_id: selectedCompany!.id });
       } else {
-        await api.createVoucher({ ...formData, company_id: selectedCompany!.id });
+        await api.createVoucher({ ...formData, total_amount: totalAmount, company_id: selectedCompany!.id });
       }
       setShowModal(false);
       setEditingVoucher(null);
@@ -321,9 +322,112 @@ export default function VouchersPage() {
                     onChange={(e) => setFormData({ ...formData, narration: e.target.value })}
                     className="erp-input w-full"
                     placeholder="Enter narration..."
-                    rows={3}
+                    rows={2}
                   />
                 </div>
+
+                {['Sales', 'Purchase'].includes(formData.voucher_type || '') && (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between items-center">
+                      <label className="erp-label !mb-0">Item Details</label>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setFormData({
+                            ...formData, 
+                            items: [...(formData.items || []), { item_id: '', quantity: 1, rate: 0, amount: 0 } as any]
+                          });
+                        }}
+                        className="text-sm font-semibold text-[var(--erp-teal)] hover:underline flex items-center gap-1"
+                      >
+                        + Add Item
+                      </button>
+                    </div>
+                    
+                    {(formData.items || []).length > 0 && (
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase">
+                            <tr>
+                              <th className="px-3 py-2">Item Name</th>
+                              <th className="px-3 py-2 w-20">Qty</th>
+                              <th className="px-3 py-2 w-24">Rate</th>
+                              <th className="px-3 py-2 w-28">Amount</th>
+                              <th className="px-3 py-2 w-10"></th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 bg-white">
+                            {(formData.items || []).map((item, index) => (
+                              <tr key={index}>
+                                <td className="px-3 py-2">
+                                  <select 
+                                    value={item.item_id}
+                                    onChange={(e) => {
+                                      const newItems = [...(formData.items || [])];
+                                      const selectedItem = items.find(si => si.id === e.target.value);
+                                      const defaultRate = formData.voucher_type === 'Sales' ? selectedItem?.selling_price : selectedItem?.purchase_price;
+                                      newItems[index] = { ...newItems[index], item_id: e.target.value, rate: defaultRate || 0, amount: (newItems[index].quantity || 1) * (defaultRate || 0) } as any;
+                                      setFormData({ ...formData, items: newItems });
+                                    }}
+                                    className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm"
+                                    required
+                                  >
+                                    <option value="">Select Item...</option>
+                                    {items.map(si => <option key={si.id} value={si.id}>{si.name}</option>)}
+                                  </select>
+                                </td>
+                                <td className="px-3 py-2">
+                                  <input 
+                                    type="number" min="1" step="0.01" value={item.quantity || ''} 
+                                    onChange={(e) => {
+                                      const newItems = [...(formData.items || [])];
+                                      const qty = parseFloat(e.target.value) || 0;
+                                      newItems[index] = { ...newItems[index], quantity: qty, amount: qty * (newItems[index].rate || 0) } as any;
+                                      setFormData({ ...formData, items: newItems });
+                                    }}
+                                    className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm" required 
+                                  />
+                                </td>
+                                <td className="px-3 py-2">
+                                  <input 
+                                    type="number" step="0.01" value={item.rate || ''} 
+                                    onChange={(e) => {
+                                      const newItems = [...(formData.items || [])];
+                                      const rate = parseFloat(e.target.value) || 0;
+                                      newItems[index] = { ...newItems[index], rate: rate, amount: (newItems[index].quantity || 0) * rate } as any;
+                                      setFormData({ ...formData, items: newItems });
+                                    }}
+                                    className="w-full bg-transparent border-0 p-0 focus:ring-0 text-sm" required 
+                                  />
+                                </td>
+                                <td className="px-3 py-2 font-medium">
+                                  {Number(item.amount || 0).toFixed(2)}
+                                </td>
+                                <td className="px-3 py-2 text-center">
+                                  <button type="button" onClick={() => {
+                                    const newItems = [...(formData.items || [])];
+                                    newItems.splice(index, 1);
+                                    setFormData({ ...formData, items: newItems });
+                                  }} className="text-red-500 hover:text-red-700 font-bold text-lg leading-none">
+                                    &times;
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot className="bg-gray-50 border-t border-gray-200">
+                            <tr>
+                              <td colSpan={3} className="px-3 py-2 text-right font-semibold text-gray-700">Total:</td>
+                              <td colSpan={2} className="px-3 py-2 font-bold text-gray-900">
+                                ₹{formData.items?.reduce((sum, item) => sum + (item.amount || 0), 0).toFixed(2) || '0.00'}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex gap-3 pt-6 justify-end">
                   <button
