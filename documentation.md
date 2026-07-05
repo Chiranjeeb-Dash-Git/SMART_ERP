@@ -4,9 +4,9 @@
 
 ## 1. Introduction
 
-**Smart ERP** is a modern, cloud-based Enterprise Resource Planning (ERP) system heavily inspired by the keyboard-first functionality and robust accounting features of Tally. It is designed to handle accounting, inventory management, invoicing, and reporting through a sleek, fast, and responsive web interface. 
+**Smart ERP** is a modern, cloud-based Enterprise Resource Planning (ERP) system heavily inspired by the keyboard-first functionality and robust accounting features of Tally. It is designed to handle comprehensive business operations with an intuitive, keyboard-first interface.
 
-The application aims to provide a seamless user experience by combining a cyberpunk-inspired dark theme with a high-performance backend, making daily business operations both efficient and visually engaging. It supports multi-company management (up to 5 companies per user) and provides secure, role-based access to business data.
+The application aims to provide a seamless user experience by combining a cyberpunk-inspired dark theme with a high-performance backend, making daily business operations both efficient and visually engaging. The dashboard showcases real-time metrics including total vouchers, sales figures, stock valuation, and active ledger accounts with quick-action buttons for rapid data entry.
 
 ---
 
@@ -36,13 +36,13 @@ The Smart ERP system encompasses a wide range of modules essential for business 
 The project follows a standard decoupled **Client-Server Architecture**:
 
 ### Frontend Architecture
-The client side is a Single Page Application (SPA) built with **Next.js** and **React**. It utilizes **TypeScript** for type safety, reducing runtime errors. The UI is styled completely using **Tailwind CSS**, providing a utility-first approach to craft the bespoke cyberpunk theme. **Framer Motion** is integrated to handle smooth animations and transitions, giving the application a modern feel. The UI components are built to be keyboard-accessible, mimicking traditional desktop accounting software.
+The client side is a Single Page Application (SPA) built with **Next.js** and **React**. It utilizes **TypeScript** for type safety, reducing runtime errors. The UI is styled completely using **Tailwind CSS**, providing a responsive and cyberpunk-inspired dark theme with smooth animations powered by Framer Motion.
 
 ### Backend Architecture
-The server side is a RESTful API built on **Node.js** using the **Express.js** framework. It acts as the bridge between the frontend and the database. The API is secured using **JWT** for stateless authentication. Passwords and sensitive data are hashed using **bcryptjs**. The backend also handles resource-intensive tasks like generating PDFs (using **PDFKit**) and exporting Excel sheets (using **ExcelJS**).
+The server side is a RESTful API built on **Node.js** using the **Express.js** framework. It acts as the bridge between the frontend and the database. The API is secured using **JWT** for stateless authentication and implements comprehensive business logic for accounting and inventory management.
 
 ### Database Architecture
-Data is persisted in a **PostgreSQL** relational database, specifically hosted on **Neon**, which provides a scalable, serverless Postgres environment. The `pg` library is used in the Node.js backend to interface with the database. The database schema is designed to handle complex relationships between users, companies, ledgers, and transactions, ensuring ACID compliance for all financial data.
+Data is persisted in a **PostgreSQL** relational database, specifically hosted on **Neon**, which provides a scalable, serverless Postgres environment. The `pg` library is used in the Node.js backend for database connectivity and query execution.
 
 ---
 
@@ -94,3 +94,74 @@ SMART_ERP/
 └── README.md                 # Brief project overview
 ```
 
+---
+
+## 6. Dashboard Overview
+
+The Smart ERP Dashboard provides a comprehensive overview of key business metrics and operations:
+
+### Company Information Panel
+- **Address:** Display of company location details
+- **Tax Information:** GST and PAN details for compliance
+- **Contact:** Contact information for the company
+- **Financial Year:** Current financial year span
+
+### Key Metrics Cards
+- **Total Vouchers:** Count of all voucher entries with active status indicator
+- **Total Sales:** Aggregated sales revenue in INR currency
+- **Stock Value:** Total inventory valuation
+- **Active Ledgers:** Count of active ledger accounts for accounting reference
+
+### Quick Actions
+- **Create Ledger:** Rapid ledger creation for new accounts
+- **Add Item:** Quick inventory item addition
+- **Create Voucher:** Fast voucher entry for transactions
+- **Record Sale/Purchase:** Quick transaction recording
+- **Generate Invoice:** On-demand invoice generation
+- **View Reports:** Access to business reports and analytics
+
+### Navigation Sidebar
+- **Masters Section:** Access to Ledgers, Customers, Suppliers, Inventory, Stock Groups, and Units
+- **Transactions Section:** Vouchers and Invoices management
+- **Company Switcher:** Easy switching between multiple companies
+- **User Profile:** Account settings and preferences
+
+---
+
+## 7. Getting Started
+
+### Prerequisites
+- Node.js (v14 or higher)
+- PostgreSQL database (or Neon account)
+- npm or yarn package manager
+
+### Installation
+
+**Backend Setup:**
+```bash
+cd backend
+npm install
+# Configure .env with database credentials
+npm run dev
+```
+
+**Frontend Setup:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`
+
+---
+
+## 8. Key Highlights
+
+✨ **Keyboard-First Design** - Optimized for rapid data entry with keyboard shortcuts
+🎨 **Cyberpunk Theme** - Modern dark theme with teal accents for reduced eye strain
+📊 **Real-Time Metrics** - Live dashboard with key business indicators
+🔐 **Enterprise Security** - JWT authentication with encrypted passwords
+💼 **Multi-Company Support** - Manage multiple business entities seamlessly
+📈 **Comprehensive Reporting** - Generate reports and export to Excel/PDF
+🗄️ **Scalable Architecture** - Serverless PostgreSQL with cloud-ready backend
