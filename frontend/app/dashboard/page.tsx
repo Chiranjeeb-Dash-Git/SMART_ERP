@@ -165,7 +165,7 @@ export default function DashboardPage() {
   if (!isClient || !user || !selectedCompany) return null;
 
   return (
-    <div className="erp-page-container flex flex-row p-0">
+    <div className="erp-page-container flex flex-row">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden bg-[var(--erp-bg)]">
         

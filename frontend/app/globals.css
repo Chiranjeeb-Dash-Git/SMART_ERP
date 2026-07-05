@@ -26,7 +26,6 @@
   /* Layout utilities */
   .erp-page-container {
     flex: 1;
-    padding: 1.5rem 2rem;
     height: 100vh;
     overflow: hidden;
     display: flex;

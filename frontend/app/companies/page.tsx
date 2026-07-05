@@ -115,33 +115,37 @@ export default function CompaniesPage() {
   return (
     <div className="erp-page-container bg-[var(--erp-bg)]">
       
-      <header className="erp-header">
-        <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--erp-teal)' }}>Select Company</h1>
-          <p className="text-sm" style={{ color: 'var(--erp-text-muted)' }}>SmartERP Gateway</p>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold" style={{ backgroundColor: 'var(--erp-sidebar-active)' }}>
-              {user.name.charAt(0)}
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-black">{user.name}</div>
-              <div className="text-xs text-[var(--erp-text-muted)]">{user.email}</div>
-            </div>
+      <header className="erp-header relative overflow-hidden">
+        {/* Subtle decorative background element */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--erp-teal)] opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+        <div className="flex justify-between items-start w-full relative z-10 flex-col sm:flex-row gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-[var(--erp-teal)] tracking-tight">Select Company</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--erp-text-muted)' }}>SmartERP Gateway</p>
           </div>
-          <button
-            onClick={logout}
-            className="erp-btn erp-btn-secondary flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold bg-[var(--erp-sidebar-active)]">
+                {user.name.charAt(0)}
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-black">{user.name}</div>
+                <div className="text-xs text-[var(--erp-text-muted)]">{user.email}</div>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="erp-btn flex items-center gap-2 border border-[var(--erp-border)] text-black hover:bg-black/5"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 overflow-auto">
-        <div className="flex justify-between items-center mb-6">
+      <main className="flex-1 overflow-auto p-6 pt-8">
+        <div className="flex justify-between items-center mb-8">
           <h2 className="text-lg font-semibold">Your Companies</h2>
           <button
             onClick={() => {

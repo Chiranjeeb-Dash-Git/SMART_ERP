@@ -96,8 +96,10 @@ export default function UnitsPage() {
     <div className="erp-page-container flex flex-row">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col p-6 overflow-hidden bg-[var(--erp-bg)]">
-        <div className="erp-header">
+      <main className="flex-1 flex flex-col overflow-hidden bg-[var(--erp-bg)]">
+        <div className="erp-header relative overflow-hidden">
+          {/* Subtle decorative background element */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--erp-teal)] opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
           <div>
             <h2 className="erp-title">Units of Measurement</h2>
             <div className="text-xs text-[var(--erp-text-muted)] mt-1">{selectedCompany.name}</div>
