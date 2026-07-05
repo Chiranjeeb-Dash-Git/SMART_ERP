@@ -1,6 +1,9 @@
 
 # 🚀 SMART_ERP
 
+**🟢 Live Demo:** [https://smart-naff5gjfr-chiranjeeb-dash-gits-projects.vercel.app/](https://smart-naff5gjfr-chiranjeeb-dash-gits-projects.vercel.app/)
+*(Production Link: [https://smart-erp-phi.vercel.app/](https://smart-erp-phi.vercel.app/))*
+
 A modern, Tally-inspired cloud ERP system built with Next.js, React, and Neon PostgreSQL.
 
 ## 🌟 Features
