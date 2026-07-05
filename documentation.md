@@ -128,27 +128,34 @@ The Smart ERP Dashboard provides a comprehensive overview of key business metric
 
 ---
 
-## 7. Getting Started
+## 7. Live Deployments & Getting Started
 
-### Prerequisites
-- Node.js (v14 or higher)
+### 🟢 Live Demo
+You can access the fully functional production build of Smart ERP here:
+- **Frontend (Vercel):** [https://smart-naff5gjfr-chiranjeeb-dash-gits-projects.vercel.app/](https://smart-naff5gjfr-chiranjeeb-dash-gits-projects.vercel.app/) (or main domain: [https://smart-erp-phi.vercel.app/](https://smart-erp-phi.vercel.app/))
+- **Backend API (Render):** [https://smart-erp-402y.onrender.com](https://smart-erp-402y.onrender.com)
+- **Database:** Serverless PostgreSQL via Neon
+
+### Local Development Prerequisites
+- Node.js (v20 or higher)
 - PostgreSQL database (or Neon account)
 - npm or yarn package manager
 
-### Installation
+### Local Installation
 
-**Backend Setup:**
+**1. Backend Setup:**
 ```bash
 cd backend
 npm install
-# Configure .env with database credentials
-npm run dev
+# Create a .env file and add your Neon DATABASE_URL and JWT_SECRET
+npm run dev:db
 ```
 
-**Frontend Setup:**
+**2. Frontend Setup:**
 ```bash
 cd frontend
 npm install
+# Create a .env.local file if needed (e.g., NEXT_PUBLIC_API_URL=http://localhost:5001/api)
 npm run dev
 ```
 
