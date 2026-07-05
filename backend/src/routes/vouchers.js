@@ -117,11 +117,12 @@ router.post('/', protect, async (req, res) => {
 
         const quantityChange = voucher_type === 'Sales' ? -item.quantity : item.quantity;
         await client.query(`
-          INSERT INTO stock_summary (company_id, item_id, quantity, rate, amount)
+          INSERT INTO stock_summary (company_id, item_id, quantity, rate, value)
           VALUES ($1, $2, $3, $4, $5)
           ON CONFLICT (company_id, item_id)
           DO UPDATE SET 
             quantity = stock_summary.quantity + EXCLUDED.quantity,
+            value = stock_summary.value + EXCLUDED.value,
             updated_at = CURRENT_TIMESTAMP
         `, [company_id, finalItemId, quantityChange, item.rate, quantityChange * item.rate]);
       }
