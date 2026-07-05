@@ -111,8 +111,8 @@ router.post('/', protect, async (req, res) => {
         if (!finalItemId) continue;
 
         await client.query(
-          'INSERT INTO voucher_items (voucher_id, item_id, quantity, rate, amount, gst_rate, gst_amount) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-          [voucherId, finalItemId, item.quantity, item.rate, item.amount, item.gst_rate || 0, item.gst_amount || 0]
+          'INSERT INTO voucher_items (voucher_id, item_id, quantity, rate, amount, gst_rate, total_amount) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+          [voucherId, finalItemId, item.quantity, item.rate, item.amount, item.gst_rate || 0, item.amount]
         );
 
         const quantityChange = voucher_type === 'Sales' ? -item.quantity : item.quantity;
@@ -193,7 +193,8 @@ router.get('/:companyId/:id/pdf', protect, async (req, res) => {
         doc.text(`${index + 1}. ${item.item_name}`);
         doc.text(`   Qty: ${item.quantity} ${item.unit} @ ${item.rate.toFixed(2)} = ${item.amount.toFixed(2)}`);
         if (item.gst_rate > 0) {
-          doc.text(`   GST: ${item.gst_rate}% = ${item.gst_amount.toFixed(2)}`);
+          const calculatedGst = item.amount * (item.gst_rate / 100);
+          doc.text(`   GST: ${item.gst_rate}% = ${calculatedGst.toFixed(2)}`);
         }
         doc.moveDown(0.5);
       });
