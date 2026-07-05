@@ -1,6 +1,6 @@
 # Smart ERP Project Documentation
 
-![Smart ERP Dashboard Screenshot](./screenshot.png)
+![Smart ERP Dashboard Screenshot](./Screenshot%202026-07-05%20093631_.png)
 
 ## 1. Introduction
 
