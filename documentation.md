@@ -1,5 +1,7 @@
 # Smart ERP Project Documentation
 
+![Smart ERP Dashboard Screenshot](./screenshot.png)
+
 ## 1. Introduction
 
 **Smart ERP** is a modern, cloud-based Enterprise Resource Planning (ERP) system heavily inspired by the keyboard-first functionality and robust accounting features of Tally. It is designed to handle accounting, inventory management, invoicing, and reporting through a sleek, fast, and responsive web interface. 
@@ -91,12 +93,4 @@ SMART_ERP/
 │   └── package.json          # Frontend dependencies
 └── README.md                 # Brief project overview
 ```
-
----
-
-## 6. Dashboard Preview
-
-![Smart ERP Dashboard Screenshot](./screenshot.png)
-
-*(Note: Please ensure the `screenshot.png` file is placed in the root directory before pushing to GitHub)*
 
