@@ -216,7 +216,7 @@ export default function LedgersPage() {
         {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={() => { setShowModal(false); resetForm(); }}>
-            <div className="erp-card w-full max-w-lg mx-auto" onClick={e => e.stopPropagation()}>
+            <div className="erp-card w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-4 pb-3 border-b border-[var(--erp-border)]">
                 <span className="font-semibold text-lg" style={{ color: 'var(--erp-teal)' }}>{editingLedger ? 'Edit Ledger' : 'Create New Ledger'}</span>
                 <button onClick={() => { setShowModal(false); resetForm(); }} className="text-gray-500 hover:text-black text-xl">&times;</button>

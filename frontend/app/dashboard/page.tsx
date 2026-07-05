@@ -309,7 +309,7 @@ export default function DashboardPage() {
         {/* Ledger Modal */}
         {showLedgerModal && (
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" onClick={() => { setShowLedgerModal(false); setEditingLedger(null); resetLedgerForm(); }}>
-            <div className="erp-card w-full max-w-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="erp-card w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[var(--erp-border)]">
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--erp-teal)' }}>
                   {editingLedger ? 'Edit Ledger' : 'Create Ledger'}
@@ -398,7 +398,7 @@ export default function DashboardPage() {
         {/* Stock Item Modal */}
         {showStockItemModal && (
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" onClick={() => { setShowStockItemModal(false); setEditingStockItem(null); resetStockItemForm(); }}>
-            <div className="erp-card w-full max-w-xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="erp-card w-full max-w-xl shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[var(--erp-border)]">
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--erp-teal)' }}>
                   {editingStockItem ? 'Edit Stock Item' : 'Add Stock Item'}
@@ -505,7 +505,7 @@ export default function DashboardPage() {
         {/* Voucher Modal */}
         {showVoucherModal && (
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4" onClick={() => { setShowVoucherModal(false); resetVoucherForm(); }}>
-            <div className="erp-card w-full max-w-2xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="erp-card w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[var(--erp-border)]">
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--erp-teal)' }}>
                   Create Voucher
