@@ -85,11 +85,11 @@ router.post('/', protect, async (req, res) => {
 
     const voucherResult = await client.query(
       'INSERT INTO vouchers (company_id, voucher_number, voucher_type, date, party_ledger_id, narration, total_amount) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [company_id, voucherNumber, voucher_type, date, party_ledger_id, narration, total_amount]
+      [company_id, voucherNumber, voucher_type, date, party_ledger_id, narration, total_amount || 0]
     );
     const voucherId = voucherResult.rows[0].id;
 
-    for (const entry of entries) {
+    for (const entry of (entries || [])) {
       await client.query(
         'INSERT INTO voucher_entries (voucher_id, ledger_id, debit, credit) VALUES ($1, $2, $3, $4)',
         [voucherId, entry.ledger_id, entry.debit, entry.credit]
