@@ -33,6 +33,56 @@ router.get('/:companyId', protect, async (req, res) => {
   }
 });
 
+router.get('/:companyId/export/excel', protect, async (req, res) => {
+  try {
+    const { type } = req.query;
+    let query = `
+      SELECT v.*, l.name as party_name 
+      FROM vouchers v 
+      LEFT JOIN ledgers l ON v.party_ledger_id = l.id 
+      WHERE v.company_id = $1
+    `;
+    const params = [req.params.companyId];
+    
+    if (type) {
+      query += ' AND v.voucher_type = $2';
+      params.push(type);
+    }
+    
+    query += ' ORDER BY v.date DESC, v.voucher_number DESC';
+    
+    const result = await pool.query(query, params);
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Vouchers');
+
+    worksheet.columns = [
+      { header: 'Voucher No', key: 'voucher_number', width: 15 },
+      { header: 'Type', key: 'voucher_type', width: 15 },
+      { header: 'Date', key: 'date', width: 15 },
+      { header: 'Party', key: 'party_name', width: 30 },
+      { header: 'Amount', key: 'total_amount', width: 15 },
+      { header: 'Narration', key: 'narration', width: 30 }
+    ];
+
+    result.rows.forEach(row => {
+      worksheet.addRow({
+        ...row,
+        date: new Date(row.date).toLocaleDateString()
+      });
+    });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="vouchers.xlsx"`);
+    
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 router.get('/:companyId/:id', protect, async (req, res) => {
   try {
     const voucherResult = await pool.query(`
@@ -157,9 +207,10 @@ router.get('/:companyId/:id/pdf', protect, async (req, res) => {
     const voucher = voucherResult.rows[0];
 
     const itemsResult = await pool.query(`
-      SELECT vi.*, i.name as item_name, i.unit 
+      SELECT vi.*, i.name as item_name, u.name as unit 
       FROM voucher_items vi 
-      JOIN items i ON vi.item_id = i.id 
+      JOIN stock_items i ON vi.item_id = i.id 
+      LEFT JOIN units u ON i.unit_id = u.id
       WHERE vi.voucher_id = $1
     `, [req.params.id]);
 
@@ -215,55 +266,4 @@ router.get('/:companyId/:id/pdf', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-router.get('/:companyId/export/excel', protect, async (req, res) => {
-  try {
-    const { type } = req.query;
-    let query = `
-      SELECT v.*, l.name as party_name 
-      FROM vouchers v 
-      LEFT JOIN ledgers l ON v.party_ledger_id = l.id 
-      WHERE v.company_id = $1
-    `;
-    const params = [req.params.companyId];
-    
-    if (type) {
-      query += ' AND v.voucher_type = $2';
-      params.push(type);
-    }
-    
-    query += ' ORDER BY v.date DESC, v.voucher_number DESC';
-    
-    const result = await pool.query(query, params);
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Vouchers');
-
-    worksheet.columns = [
-      { header: 'Voucher No', key: 'voucher_number', width: 15 },
-      { header: 'Type', key: 'voucher_type', width: 15 },
-      { header: 'Date', key: 'date', width: 15 },
-      { header: 'Party', key: 'party_name', width: 30 },
-      { header: 'Amount', key: 'total_amount', width: 15 },
-      { header: 'Narration', key: 'narration', width: 30 }
-    ];
-
-    result.rows.forEach(row => {
-      worksheet.addRow({
-        ...row,
-        date: new Date(row.date).toLocaleDateString()
-      });
-    });
-
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="vouchers.xlsx"`);
-    
-    await workbook.xlsx.write(res);
-    res.end();
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 module.exports = router;
